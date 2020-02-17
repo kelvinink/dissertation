@@ -13,3 +13,16 @@ pip install tweepy
 ```shell
 pip install praw
 ```
+
+# Kafka
+Please refer to this image: 
+https://hub.docker.com/r/bitnami/kafka
+
+# Kafka-Python
+```shell
+pip install kafka-python
+```
+https://kafka-python.readthedocs.io/en/master/usage.html
+
+
+
