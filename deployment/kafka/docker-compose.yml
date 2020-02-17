@@ -1,0 +1,74 @@
+version: '2'
+
+networks: 
+  rcas: 
+    external: true
+
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:3.5.7'
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks: 
+      - rcas
+  kafka1:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - '9092'
+      - '19092:19092'
+    depends_on: 
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:19092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks: 
+      - rcas
+  kafka2:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka2
+    container_name: kafka2
+    ports:
+      - '9092'
+      - '29092:29092'
+    depends_on: 
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=2
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:29092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka2:9092,EXTERNAL://localhost:29092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks: 
+      - rcas
+  kafka3:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka3
+    container_name: kafka3
+    ports:
+      - '9092'
+      - '39092:39092'
+    depends_on: 
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=3
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:39092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka3:9092,EXTERNAL://localhost:39092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks: 
+      - rcas
