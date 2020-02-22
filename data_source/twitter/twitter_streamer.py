@@ -3,6 +3,10 @@
 import tweepy
 import twitter_credentials
 import json
+import os.path
+import datetime
+
+DELIMITER = ';'
 
 class TwitterAuthenticator():
     """
@@ -26,10 +30,17 @@ class TwitterStreamer():
     def __init__(self):
         self.twitter_autenticator = TwitterAuthenticator()
 
-    def stream_tweets(self, outFile, tag_list):
+    def stream2file(self, outFile, tag_list, attrs):
         # This handles Twitter authetification and the connection to Twitter Streaming API
         authHandler = self.twitter_autenticator.getAuthHandler()
-        listener = TwitterListener(outFile)
+        with open(outFile, 'a') as f:
+            listener = TwitterListener(f, attrs)
+            stream = tweepy.Stream(authHandler, listener)
+            stream.filter(track=tag_list)
+    
+    def stream2kafka(self, kafka, tag_list, attrs):
+        authHandler = self.twitter_autenticator.getAuthHandler()
+        listener = TwitterListener(kafka, attrs)
         stream = tweepy.Stream(authHandler, listener)
         stream.filter(track=tag_list)
 
@@ -38,14 +49,19 @@ class TwitterListener(tweepy.streaming.StreamListener):
     """
     Twitter listener that just prints received tweets to stdout.
     """
-    def __init__(self, outFile):
-        self.outFile = outFile
+    def __init__(self, sink, attrs):
+        self.sink = sink
+        self.attrs = attrs
 
     def on_data(self, data):
         try:
-            print('Tweet ID: ', json.loads(data)['id'])
-            with open(self.outFile, 'a') as f:
-                f.write(data)
+            json_tweet = json.loads(data)
+            print('Tweet ID: ', json_tweet['id'])
+            record = []
+            for attr in self.attrs:
+                item = str(json_tweet[attr]).replace('\n','').replace(DELIMITER, '')
+                record.append(item if item is not None else "")
+            self.sink.write(DELIMITER.join(record) + "\n")
             return True
         except BaseException as e:
             print("Error on_data %s" % str(e))
@@ -60,7 +76,20 @@ class TwitterListener(tweepy.streaming.StreamListener):
 if __name__ == '__main__':
     # Authenticate using config.py and connect to Twitter Streaming API.
     tag_list = ["donal trump", "hillary clinton", "barack obama", "bernie sanders"]
-    outFile = "tweets.txt"
 
+    attrs = ["id_str", "created_at", "quote_count", "reply_count", "retweet_count", "favorite_count",
+            "geo", "coordinates",  "timestamp_ms", "lang", "source", "text"]
+
+    curr_time = datetime.datetime.now()
+    daymonth = curr_time.strftime("%Y%m%d")
+    
+    outFile = "tweets" + daymonth + ".csv"
+
+    if os.path.isfile(outFile) == False:
+        with open(outFile, "w") as f:
+            f.write(DELIMITER.join(attrs) + "\n")
+        
     twitter_streamer = TwitterStreamer()
-    twitter_streamer.stream_tweets(outFile, tag_list)
+    twitter_streamer.stream2file(outFile, tag_list, attrs)
+
+    
