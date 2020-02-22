@@ -1,10 +1,11 @@
 # For more info please refer to: 
 # http://docs.tweepy.org/en/v3.8.0/streaming_how_to.html
 import tweepy
-import twitter_credentials
+import time
 import json
 import os.path
 import datetime
+import twitter_credentials
 
 DELIMITER = ';'
 
@@ -69,7 +70,8 @@ class TwitterListener(tweepy.streaming.StreamListener):
           
     def on_error(self, status):
         if status == 420:
-            # Returning False on_data method in case rate limit occurs.
+            # Rate limit
+            time.sleep(20*60)
             return False
         print(status)
  
