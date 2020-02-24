@@ -2,7 +2,7 @@ from kafka import KafkaConsumer
 
 # To consume latest messages and auto-commit offsets
 consumer = KafkaConsumer('kelvin_topic',
-                         bootstrap_servers=['localhost:19092'],
+                         bootstrap_servers=['106.13.90.40:19092'],
                          auto_offset_reset='earliest')
 
 print("List of Topics: ")
