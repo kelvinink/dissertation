@@ -14,7 +14,7 @@ class RedditStreamer():
     Streaming and processing live subreddits.
     """
     def __init__(self):
-        pass
+        self.count = 0
 
     def stream_comments(self, subreddit, outFile, attrs):
         reddit = praw.Reddit(client_id=reddit_credentials.CLIENT_ID,
@@ -27,7 +27,8 @@ class RedditStreamer():
                 #print(comment.__dict__)
                 #print(comment.body)
                 try:
-                    print('Reddit ID: ', comment.__dict__['id'])
+                    print('Reddit ID: ', comment.__dict__['id'], '  count: ', self.count)
+                    self.count += 1
                     record = []
                     for attr in attrs:
                         item = str(comment.__dict__[attr]).replace('\n','').replace(DELIMITER, '')
@@ -50,4 +51,4 @@ if __name__ == '__main__':
             f.write(DELIMITER.join(attrs) + "\n")
 
     redditStreamer = RedditStreamer()
-    redditStreamer.stream_comments('Bitcoin', outFile, attrs)
+    redditStreamer.stream_comments('CryptoCurrency', outFile, attrs)
