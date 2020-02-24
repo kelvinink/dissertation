@@ -25,4 +25,12 @@ pip install kafka-python
 https://kafka-python.readthedocs.io/en/master/usage.html
 
 
+# Docker
+## Installation
+```shell
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker your-user
+```
+
 
