@@ -17,7 +17,7 @@ app = Flask(__name__)
 @app.route('/api/ml/sentiment', methods=['GET'])
 def sentiment():
     global sia
-    text = request.args.get('sent')
+    text = request.args.get('text')
     scores = sia.polarity_scores(text)
     return str(scores)
 
