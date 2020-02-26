@@ -1,0 +1,15 @@
+version: '3'
+
+networks: 
+  rcas: 
+    external: true
+
+services:
+    mlservice:
+    build: .
+    hostname: nlp_sentiment
+    container_name: nlp_sentiment
+    ports:
+      - '8080:80'
+    networks: 
+      - rcas
