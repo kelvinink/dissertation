@@ -6,10 +6,10 @@ networks:
 
 services:
     mlservice:
-    build: .
-    hostname: nlp_sentiment
-    container_name: nlp_sentiment
-    ports:
-      - '8080:80'
-    networks: 
-      - rcas
+      build: .
+      hostname: nlp_sentiment
+      container_name: nlp_sentiment
+      ports:
+        - '8080:80'
+      networks: 
+        - rcas
