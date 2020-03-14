@@ -1,5 +1,5 @@
 #############################################################################
-# Usage: wget http://localhost/api/ml/sentiment?sent=your_sentence
+# Usage: wget http://localhost/api/ml/sentiment?text=your_sentence
 #############################################################################
 
 import time

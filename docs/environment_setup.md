@@ -33,6 +33,20 @@ sudo sh get-docker.sh
 sudo usermod -aG docker your-user
 ```
 
+## Aliyun Mirror
+```shell
+sudo mkdir -p /etc/docker
+
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://mj4v472j.mirror.aliyuncs.com"]
+}
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
 
 # Add Swap
 ```shell

@@ -8,9 +8,9 @@ services:
     mlservice:
       build: .
       image: mlservice:0.0.1
-      hostname: nlp_sentiment
-      container_name: nlp_sentiment
+      #hostname: nlp_sentiment
+      #container_name: nlp_sentiment
       ports:
-        - '8080:80'
+        - '80'
       networks: 
         - rcas
