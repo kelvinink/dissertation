@@ -1,9 +1,13 @@
 import time
 from kafka import KafkaConsumer
 
+bootstrap_servers=['129.204.135.185:19092']
+topic = 'raw'
+
+
 # To consume latest messages and auto-commit offsets
-consumer = KafkaConsumer('kelvin_topic',
-                         bootstrap_servers=['106.13.90.40:19092'],
+consumer = KafkaConsumer(topic,
+                         bootstrap_servers=bootstrap_servers,
                          auto_offset_reset='earliest')
 
 print("List of Topics: ")
@@ -17,7 +21,7 @@ for message in consumer:
     # message value and key are raw bytes -- decode if necessary!
     # e.g., for unicode: `message.value.decode('utf-8')`
     
-    #print(message)
+    print(message)
     n += 1
     if n == 10000:
         m += n
