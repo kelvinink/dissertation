@@ -5,7 +5,8 @@ import praw
 import json
 import os.path
 import datetime
-import reddit_credentials
+
+from data_source.reddit import reddit_credentials
 
 DELIMITER = ';'
 

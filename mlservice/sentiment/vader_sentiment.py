@@ -1,15 +1,12 @@
 #############################################################################
 # Usage: wget http://localhost/api/ml/sentiment?text=your_sentence
 #############################################################################
-
-import time
 import os
-import nltk
 from flask import Flask, jsonify, request, Response
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 # nltk.download('vader_lexicon')
-lexicon_file='../model/vader_lexicon/vader_lexicon.txt'
+lexicon_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'model/vader_lexicon/vader_lexicon.txt')
 sia = SentimentIntensityAnalyzer(lexicon_file=lexicon_file)
 
 app = Flask(__name__)

@@ -19,7 +19,7 @@ while True:
     elapsed += end - start
     n += 1
 
-    #print(future.get())
+    print(future.get())
     # if n == 10000:
     #     print("Throughput: ", elapsed / n)
     #     n = 0

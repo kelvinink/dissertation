@@ -5,7 +5,8 @@ import time
 import json
 import os.path
 import datetime
-import twitter_credentials
+
+from data_source.twitter import twitter_credentials
 
 DELIMITER = ';'
 
