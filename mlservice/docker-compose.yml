@@ -5,12 +5,10 @@ networks:
     external: true
 
 services:
-    mlservice:
-      build: .
-      image: mlservice:0.0.1
-      #hostname: nlp_sentiment
-      #container_name: nlp_sentiment
-      ports:
-        - '80'
-      networks: 
-        - rcas
+  mlservice:
+    build: .
+    image: mlservice:0.0.1
+    ports:
+      - '80'
+    networks:
+      - rcas

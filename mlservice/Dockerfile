@@ -1,12 +1,12 @@
 FROM python:3
 
-WORKDIR /usr/src/app
+COPY . /usr/src/app/mlservice
 
-COPY . ./mlservice
-
-RUN pip install -r ./mlservice/requirements.txt
-RUN export PYTHONPATH=${PYTHONPATH}:.
+WORKDIR /usr/src/app/mlservice
 
 EXPOSE 80
 
-CMD [ "python", "./mlservice/sentiment/vader_sentiment.py" ]
+RUN pip install -r requirements.txt
+RUN export PYTHONPATH=${PYTHONPATH}:/usr/src/app
+
+ENTRYPOINT ["./entrypoint.sh"]
