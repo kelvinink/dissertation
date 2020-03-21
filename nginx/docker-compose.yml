@@ -1,0 +1,15 @@
+version: '3'
+
+networks:
+  rcas:
+    external: true
+
+services:
+  nginx:
+    image: bitnami/nginx:1.16
+    volumes:
+      - ./conf/mlservice_lb.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
+    ports:
+      - '8080'
+    networks:
+      - rcas
