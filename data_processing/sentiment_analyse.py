@@ -24,11 +24,13 @@ if __name__ == '__main__':
     consumer = kafka_consumer(config.KAFKA['topic']['raw'])
     producer = kafka_producer()
 
+    # Fetching data from kafka
     for msg in consumer:
         # message value and key are raw bytes -- decode if necessary!
         # e.g., for unicode: `message.value.decode('utf-8')`
         # print(message)
 
+        # Call sentiment analysis service
         text = msg.value.decode('utf-8')
         url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
             config.MLSERVICE['host'],
@@ -42,6 +44,7 @@ if __name__ == '__main__':
 
         print( json.dumps(item))
 
+        # Pushing analyzed data back into kafka
         producer.send(config.KAFKA['topic']['after_sentiment'],  json.dumps(item).encode('utf-8'))
 
         time.sleep(3)
