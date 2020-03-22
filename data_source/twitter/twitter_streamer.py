@@ -3,12 +3,12 @@
 import tweepy
 import time
 import json
-import os.path
 import datetime
+
+from kafka import KafkaProducer
 
 from data_source.twitter import twitter_credentials
 
-DELIMITER = ';'
 
 class TwitterAuthenticator():
     """
@@ -54,19 +54,28 @@ class TwitterListener(tweepy.streaming.StreamListener):
     def __init__(self, sink, attrs):
         self.sink = sink
         self.attrs = attrs
+        self.kafka_topic = "rcas_raw"
 
     def on_data(self, data):
         try:
             json_tweet = json.loads(data)
             print('Tweet ID: ', json_tweet['id'])
-            record = []
+
+            record = {}
             for attr in self.attrs:
-                item = str(json_tweet[attr]).replace('\n','').replace(DELIMITER, '')
-                record.append(item if item is not None else "")
-            self.sink.write(DELIMITER.join(record) + "\n")
+                item = str(json_tweet[attr]).replace('\n', '')
+                record[attr] = item if item is not None else ""
+
+            if isinstance(self.sink, KafkaProducer):
+                self.sink.send(self.kafka_topic, json.dumps(record).encode('utf-8'))
+                print(json.dumps(record).encode('utf-8'))
+            else:
+                self.sink.write(json.dumps(record) + "\n")
+
             return True
         except BaseException as e:
             print("Error on_data %s" % str(e))
+
         return True
           
     def on_error(self, status):
@@ -85,14 +94,10 @@ if __name__ == '__main__':
 
     curr_time = datetime.datetime.now()
     daymonth = curr_time.strftime("%Y%m%d")
-    
-    outFile = "tweets" + daymonth + ".csv"
-
-    if os.path.isfile(outFile) == False:
-        with open(outFile, "w") as f:
-            f.write(DELIMITER.join(attrs) + "\n")
+    outFile = "tweets" + daymonth + ".txt"
         
     twitter_streamer = TwitterStreamer()
-    twitter_streamer.stream2file(outFile, tag_list, attrs)
+    #twitter_streamer.stream2file(outFile, tag_list, attrs)
+    twitter_streamer.stream2kafka(KafkaProducer(bootstrap_servers=['129.204.135.185:19092']), tag_list, attrs)
 
     
