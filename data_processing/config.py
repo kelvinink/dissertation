@@ -1,7 +1,7 @@
 KAFKA = {
     "topic" : {
-        "raw" : "raw",
-        "after_sentiment" : "after_sentiment"
+        "raw" : "rcas_raw",
+        "after_sentiment" : "rcas_after_sentiment"
     },
 
     "bootstrap_servers" : ['129.204.135.185:19092'],
