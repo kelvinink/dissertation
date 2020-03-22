@@ -33,6 +33,10 @@ sudo sh get-docker.sh
 sudo usermod -aG docker your-user
 ```
 
+## Production Environment
+In production environment it's recommended to install docker by following instructions below:
+https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
 ## Aliyun Mirror
 ```shell
 sudo mkdir -p /etc/docker
@@ -45,6 +49,29 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+```
+
+## Copy Docker Images to Remote Host
+**Saved Images:** 
+flink.tar	nginx.tar	python3.tar	redis.tar
+
+**Tag:**
+flink:1.9.2-scala_2.11
+bitnami/nginx:1.16
+redis:6.0-rc2
+python:3
+
+**Hosts:** 
+ubuntu@129.204.135.185
+root@106.13.90.40
+
+```shell
+scp -i /Users/bytedance/Documents/personal/ecs/bcc.txt /Users/bytedance/Documents/personal/docker_images/flink.tar root@106.13.90.40:~/
+
+scp -i /Users/bytedance/Documents/personal/ecs/tcc  /Users/bytedance/Documents/personal/docker_images/flink.tar ubuntu@129.204.135.185:~/
+
+# Login to remote host and:
+docker image import ~/flink.tar
 ```
 
 
