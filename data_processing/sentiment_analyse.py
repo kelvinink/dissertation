@@ -42,7 +42,7 @@ if __name__ == '__main__':
         item = json.loads(sentiment_res)
         item["text"] = text
 
-        print( json.dumps(item))
+        print(json.dumps(item))
 
         # Pushing analyzed data back into kafka
         producer.send(config.KAFKA['topic']['after_sentiment'],  json.dumps(item).encode('utf-8'))
