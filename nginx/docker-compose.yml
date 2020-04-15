@@ -10,6 +10,6 @@ services:
     volumes:
       - ./conf/mlservice_lb.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
     ports:
-      - '8080'
+      - '8080:8080'
     networks:
       - rcas
