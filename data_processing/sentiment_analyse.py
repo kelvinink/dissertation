@@ -30,8 +30,17 @@ if __name__ == '__main__':
         # e.g., for unicode: `message.value.decode('utf-8')`
         # print(message)
 
+        # Extracting text
+        msg_val = json.loads(msg.value.decode('utf-8'))
+        if "text" in msg_val:
+            text = msg_val["text"]
+        elif "body" in msg_val:
+            text = msg_val["body"]
+        else:
+            print("Error text not exist")
+            continue
+
         # Call sentiment analysis service
-        text = msg.value.decode('utf-8')
         url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
             config.MLSERVICE['host'],
             config.MLSERVICE['port'],
@@ -47,4 +56,4 @@ if __name__ == '__main__':
         # Pushing analyzed data back into kafka
         producer.send(config.KAFKA['topic']['after_sentiment'],  json.dumps(item).encode('utf-8'))
 
-        time.sleep(3)
+        #time.sleep(3)
