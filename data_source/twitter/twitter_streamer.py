@@ -87,7 +87,8 @@ class TwitterListener(tweepy.streaming.StreamListener):
  
 if __name__ == '__main__':
     # Authenticate using config.py and connect to Twitter Streaming API.
-    tag_list = ["croptocurrency", "bitcoin", "ethereum", ""]
+    tag_list = ["croptocurrency", "bitcoin", "ethereum", 
+        "Ripple", "Litecoin", "Tether", "Libra", "Monero"]
 
     attrs = ["id_str", "created_at", "quote_count", "reply_count", "retweet_count", "favorite_count",
             "geo", "coordinates",  "timestamp_ms", "lang", "source", "text"]
