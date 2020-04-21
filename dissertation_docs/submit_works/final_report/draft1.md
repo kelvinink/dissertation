@@ -1,6 +1,16 @@
 # Outline
+* Abstract
+* Introduction
+* Background
+* Related Works
+* System Architecture
+* Experimental Evaluation
+* Discussion
+* Conclusion
+* References
 
 # Abstract
+
 Since the creation of Bitcoin, cryptocurrencies are attracting significant attentions from researchers. They have been proposing many solutions for analysing the price trend. One dimension of these researches is to analyse the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement approximately real-time processing on Spark framework. However the data volume is increasing rapidly in recent years.
 
 <todo>People are demanding a timely system that can help them to detect the fluctuation of cryptocurrency market.</todo>
@@ -42,6 +52,8 @@ The Efficient Market Hypothesis states that current stock prices have reflected 
 For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The first step is to extract data from multiple sources. The extracted data is then processed in the transform stage. Finally, these data are loaded to target data store.
 
 <todo>MapReduce</todo>
+MapReduce is a framework that can process large datasets in parallel. Compared to ETL, mapreduce is more scalable and can provide higher throughput. MapReduce is compose of three core operations: map, shuffle and reduce.
+
 <todo>Hadoop</todo>
 <todo>Kappa architecture and Lambda Architecture</todo>
 Lambda architecture is a data processing architure that is capable of dealing with massive amount of data. It mixes both batch and stream processing methods. Lambda architecture is compose of batch layer and speed layer. The batch layer is focus on increasing the accuracy by taking account into all available data. The speed layer is focus on providing immediate view to the new incoming data.
@@ -53,6 +65,7 @@ Kappa architecture is a simplified architecture with batch processing system rem
 <todo>![lambda architecture](fig/ref_kappa_arch.png)</todo>
 
 <todo>Spark</todo>
+MapReduce algorithm starts to expose its limmitation in 
 
 <todo>Flink</todo>
 
