@@ -15,7 +15,7 @@ Since the creation of Bitcoin, cryptocurrencies are attracting significant atten
 
 <todo>People are demanding a timely system that can help them to detect the fluctuation of cryptocurrency market.</todo>
 
-The demand for a truely real-time crypotocurrency analysation platform is rising. In this paper, we propose a Flink-based cryptocurrency analysation system that can handle massive amount of data in real time. Streaming data is evaluated continuously and the result is updated to dashboard instantly. 
+The demand for a truely real-time crypotocurrency analysation platform is rising. In this paper, we propose a Flink-based cryptocurrency analysation system that can handle massive amount of data in real time. Streaming data is evaluated continuously and the result is updated to dashboard in seconds, not days or months. 
 
 <todo>technologies that we used, pros including fault tolerent, scalability, critical experiment result</todo>
 
@@ -31,13 +31,14 @@ Since 2009, many other altcoins have been created.
 
 <todo>crypto coin market, price, historycal high, current status, fluctuation</todo>
 
-
 The Efficient Market Hypothesis states that current stock prices have reflected all the available information. And price variation is largely driven by incoming information. These new information broadcasts on social media like twitter and reddit rappidly. Researchers have devoted to find the correlation between public mood and stock price. One approach is to do sentiment analysis on tweets by applying machine learning algorithms. 
 
 <todo>which is the first paper that do sentiment on social media to predict cryptocurrency price</todo>
 
 <todo>arrangement for the rest of the paper</todo>
 
+The rest of paper is structured as follows.
+<todo>introduce each setion</todo>
 
 
 # Background（凑字数的)
@@ -51,19 +52,15 @@ The Efficient Market Hypothesis states that current stock prices have reflected 
 
 
 <todo>Traditional business intelligence</todo>
-For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target data store. However traditional ETL systems are limited by their scalability and fault tolerent ability. 
+For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target data store. However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 <todo>Limmitation of ETL</todo>
-
 
 <todo>MapReduce</todo>
 <todo>what bring us to the world of mapreduce</tody>
-
-MapReduce is a programming model that can process vast amounts of datasets in parallel. 
-
 <ref>https://dl.gi.de/bitstream/handle/20.500.12116/20456/327.pdf?sequence=1</ref>
 <ref>https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html</ref>
 
-MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, such that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel.
+MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, such that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel.
 
 <todo>Hadoop</todo>
 Hadoop Distributed File System
