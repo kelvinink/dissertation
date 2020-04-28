@@ -10,19 +10,13 @@
 * References
 
 # Abstract
-
-Since the creation of Bitcoin, cryptocurrencies are attracting significant attentions from researchers. They have been proposing many solutions for analysing the price trend. One dimension of these researches is to analyse the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement approximately real-time processing on Spark framework. However spark is a framework dedicated for batch processing, which suffers from high latency. It's not 
-
-<todo>People are demanding a timely system that can help them to detect the fluctuation of cryptocurrency market.</todo>
-
-The demand for a truely real-time crypotocurrency analysation platform is rising. In this paper, we propose a Flink-based cryptocurrency analysation system that can handle massive amount of data in real time. Streaming data is evaluated continuously and the result is updated to dashboard in seconds, not days or months. 
-
-<todo>technologies that we used, pros including fault tolerent, scalability, critical experiment result</todo>
-
+Since the creation of Bitcoin, cryptocurrencies are attracting significant attentions from researchers. They have been proposing many solutions for analysing the price trend. One dimension of these researches is to analyse the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement approximately real-time processing on Spark framework. However spark is a framework dedicated for batch processing, which suffers from high latency. It's not suitable for iterative or interactive applications. In the area of capital market, the price fluctuation is very fast. Analytics and stakeholders are demanding a timely system that can assist their decision making. In this background the demand for a truely real-time crypotocurrency analysation platform is rising. In this paper, we propose a Flink-based cryptocurrency analysation system that can handle massive amount of data in real time. Streaming data is evaluated continuously and the result is updated to dashboard in seconds, not days or months.
 
 # Introduction
 * Introduction of cryptocurrency
 * Introduction of social media(twitter, reddit)
+* Significance of the paper
+* technologies that we used, pros including fault tolerent, scalability, critical experiment result
 
 Cryptocurrency is a kind of digital asset that's decentralized and secured by strong crypotography algorithms. Satoshi Nakamoto created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records which is linked by hash function. Hash function ensures that non of the records can be modified without being caught by other. 
 
