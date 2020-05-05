@@ -67,10 +67,12 @@ Kappa architecture is a simplified architecture with batch processing system rem
 <todo>![kappa architecture](fig/ref_kappa_arch.png)</todo>
 
 ## Spark
-Spark is a cluster big data framework that supports in-memory computing. <todo>which paper propose spark, and what problem does it solve</todo>Hadoop MapReduce is not designed to reuse imtermidiate results. To reuse these results, we have to save them back to HDFS and reload them into memory at next iteration of MapReduce. This incurs performance penalty due to disk IO.  Spark minimizes the overhead by introducing in the resilient distributed datasets (RDD). RDD is a collection of read only records that are partitioned across many machines. A RDD is created from external storage or other RDDs by the transformation operation. It can be explicitly cached in memory for resuse by multiple MapReduce tasks. To reuse a RDD in the future, users can persistent it to external storage. Fault tolerance of RDD is achieved by recording the lineage of the RDD. Lineages include information about how the RDD is drived from other RDDs. A RDD can be rebuilt if it's lost or crushed. <todo>Spark’s architecture consists of a Driver Program, a Cluster Manager and Worker Nodes</todo>
+Spark is a cluster big data framework that supports in-memory computing. <todo>which paper propose spark, and what problem does it solve</todo>Hadoop MapReduce is not designed to reuse imtermidiate results. To reuse these results, we have to save them back to HDFS and reload them into memory at next iteration of MapReduce. This incurs performance penalty due to disk IO.  Spark minimizes the overhead by introducing in the resilient distributed datasets (RDD). RDD is a collection of read only records that are partitioned across many machines. A RDD is created from external storage or other RDDs by the transformation operation. It can be explicitly cached in memory for resuse by multiple MapReduce tasks. To reuse a RDD in the future, users can persistent it to external storage. Fault tolerance of RDD is achieved by recording the lineage of the RDD. Lineages include information about how the RDD is drived from other RDDs. A RDD can be rebuilt if it's lost or crushed. <todo>Spark’s architecture consists of a Driver Program, a Cluster Manager and Worker Nodes</todo> <todo>spark stream and micro-batch streaming</todo>
 
 ## Flink
-Apache flink is a distributed stateful stream processing framework. 
+Apache flink is a distributed stateful stream processing framework. Flink is based on Kappa architecture which unifies stream and batch data processing. <ref>Giselle van Dongen and Dirk Van den Poel benchmarks flink and spark streaming.</ref> The benchmark shows that flink outform spark streaming in two ways. One is that flink processes streaming data with the lowest latency. The other is that flink provides better balance between latency and throughput. Flink offers exactly-once state consistency by regularly checkpointing operator state to external storage.
+
+There are five basic building blocks of flink: stream, state, time, window and checkpoint. Streams can be bounded or unbounded. Unbounded streams are streams never ended, while bounded stream 
 
 Building blocks of flink:
 <ref>https://flink.apache.org/flink-applications.html</ref>
@@ -78,7 +80,7 @@ Building blocks of flink:
 * State: Stateful
 * Time: Event-time, Ingestion time, Processing time
 * Checkpoint (Chandy-Lamport)
-* Time
+* Window
 
 
 Characteristics of flink
@@ -89,8 +91,6 @@ Characteristics of flink
 * State management
 * Time sementics
 * Fault tolerent
-
-<ref>Flink guarantees exactly-once state consistency in case of failures by periodically and asynchronously checkpointing the local state to durable storage.</ref>
 
 # Related Works
 
