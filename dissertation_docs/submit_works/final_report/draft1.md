@@ -36,7 +36,7 @@ The rest of paper is structured as follows.
 
 # Background（凑字数的)
 * History of big data
-* Traditional business intelligence
+* Traditional ETL and business intelligence
 * MapReduce
 * Hadoop
 * Kappa architecture and Lambda Architecture
@@ -62,7 +62,7 @@ To accomodate the need for both high throughput and low latency, <ref>(N. Marz a
 
 <todo>![lambda architecture](fig/ref_lambda_arch.png)</todo>
 
-Kappa architecture is a simplified architecture with batch processing system removed. It enable analytics to do data processing with a single technology stack.
+Kappa architecture is a simplified architecture with batch processing system removed. <ref>It's proposed by Jay Kreps https://www.oreilly.com/radar/questioning-the-lambda-architecture/</ref>It enable analytics to do data processing with a single technology stack. In kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately.
 
 <todo>![kappa architecture](fig/ref_kappa_arch.png)</todo>
 
@@ -72,27 +72,11 @@ Spark is a cluster big data framework that supports in-memory computing. <todo>w
 ## Flink
 Apache flink is a distributed stateful stream processing framework. Flink is based on Kappa architecture which unifies stream and batch data processing. <ref>Giselle van Dongen and Dirk Van den Poel benchmarks flink and spark streaming.</ref> The benchmark shows that flink outform spark streaming in two aspect. One is that flink processes streaming data with the lowest latency. The other is that flink provides better balance between latency and throughput. Flink employ the master slave structure, where jobmanager is the master and taskmanagers are the slaves. Jobmanager is responsible for scheduling tasks and coordinating checkpoints and recovery. Taskmanagers consist multiple task slots, which can execute task operators. Taskmanagers periodically report their status to the jobmanager by sending heartbeats.
 
-There are five basic building blocks of flink: stream, state, time, window and checkpoint. Streams can be bounded or unbounded. Unbounded streams are streams never ended, while bounded streams are fix-sized datasets. Flink provides a DataStream API for unbounded stream and a DataSet API for bounded stream. Flink supports flexible window mechanism for the DataStream API, including time window and count window. A window declaration consist of three functions: a window assigner, a trigger and an evictor.  The window assigner assigns incoming data to windows. The trigger dertermines when the process function of the window start excuting. The evictor removes some data out of the window according to provided criteria. Time management is critical for stream processing. Flink offers flexible notion of time: event time, ingestion time and processing time. 
+There are five basic building blocks of flink: stream, state, time, window and checkpoint. Streams can be bounded or unbounded. Unbounded streams are streams never ended, while bounded streams are fix-sized datasets. Flink provides a DataStream API for unbounded stream and a DataSet API for bounded stream. Flink supports flexible window mechanism for the DataStream API, including time window and count window. A window declaration consist of three functions: a window assigner, a trigger and an evictor.  The window assigner assigns incoming data to windows. The trigger dertermines when the process function of the window start excuting. The evictor removes some data out of the window according to provided criteria. Time management is also critical for stream processing. Flink offers flexible notion of time: event time, ingestion time and processing time. 
 
-Transformation operators can keep states like counter, machine learning model or aggregation result. Flink offers exactly-once state consistency by regularly checkpointing operator states to external storage.
+Transformation operators can keep states like counter, machine learning model or intermediate aggregation result. States are key-value store embeded in stateful operators. Since states can be accessed locally, flink applications achieve high throughput and low latency. Flink offers exactly-once state consistency by regularly checkpointing operator states to external storage. Checkpoint employ light weight Chandy-Lamport
 
-Building blocks of flink:
 <ref>https://flink.apache.org/flink-applications.html</ref>
-* Stream: Bounded, unbounded
-* State: Stateful
-* Time: Event-time, Ingestion time, Processing time
-* Checkpoint (Chandy-Lamport)
-* Window
-
-
-Characteristics of flink
-* High throughput
-* Low latency
-* Exactly once semantcs
-* Event Processing
-* State management
-* Time sementics
-* Fault tolerent
 
 # Related Works
 
