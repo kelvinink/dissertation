@@ -6,6 +6,8 @@ networks:
 
 services:
   nginx:
+    hostname: rcas_nginx
+    container_name: rcas_nginx
     image: bitnami/nginx:1.16
     volumes:
       - ./conf/mlservice_lb.conf:/opt/bitnami/nginx/conf/server_blocks/my_server_block.conf

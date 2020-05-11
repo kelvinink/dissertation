@@ -1,5 +1,4 @@
 import re
-import time
 import json
 import requests
 
@@ -7,7 +6,6 @@ from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
 from data_processing import config
-
 
 def kafka_producer():
     return KafkaProducer(bootstrap_servers=config.KAFKA['bootstrap_servers'])
