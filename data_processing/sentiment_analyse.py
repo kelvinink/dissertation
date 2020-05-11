@@ -19,9 +19,8 @@ def kafka_consumer(topic):
         auto_offset_reset='earliest'
     )
 
-
-if __name__ == '__main__':
-    consumer = kafka_consumer(config.KAFKA['topic']['raw'])
+def twitter_sentiment():
+    consumer = kafka_consumer(config.KAFKA['topic']['rcas_twitter_raw'])
     producer = kafka_producer()
 
     # Fetching data from kafka
@@ -32,13 +31,7 @@ if __name__ == '__main__':
 
         # Extracting text
         msg_val = json.loads(msg.value.decode('utf-8'))
-        if "text" in msg_val:
-            text = msg_val["text"]
-        elif "body" in msg_val:
-            text = msg_val["body"]
-        else:
-            print("Error text not exist")
-            continue
+        text = msg_val["text"]
 
         # Call sentiment analysis service
         url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
@@ -49,11 +42,47 @@ if __name__ == '__main__':
 
         sentiment_res = re.sub('\'', '\"', resp.content.decode('utf-8'))
         item = json.loads(sentiment_res)
-        item["text"] = text
 
-        print(json.dumps(item))
+        msg_val["sentiment"] = item
+        print(json.dumps(msg_val))
 
         # Pushing analyzed data back into kafka
-        producer.send(config.KAFKA['topic']['after_sentiment'],  json.dumps(item).encode('utf-8'))
+        producer.send(config.KAFKA['topic']['rcas_twitter_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
 
         #time.sleep(3)
+
+def reddit_sentiment():
+    consumer = kafka_consumer(config.KAFKA['topic']['rcas_reddit_raw'])
+    producer = kafka_producer()
+
+    # Fetching data from kafka
+    for msg in consumer:
+        # message value and key are raw bytes -- decode if necessary!
+        # e.g., for unicode: `message.value.decode('utf-8')`
+        # print(message)
+
+        # Extracting text
+        msg_val = json.loads(msg.value.decode('utf-8'))
+        text = msg_val["body"]
+
+        # Call sentiment analysis service
+        url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
+            config.MLSERVICE['host'],
+            config.MLSERVICE['port'],
+            text)
+        resp = requests.get(url)
+
+        sentiment_res = re.sub('\'', '\"', resp.content.decode('utf-8'))
+        item = json.loads(sentiment_res)
+
+        msg_val["sentiment"] = item
+        print(json.dumps(msg_val))
+
+        # Pushing analyzed data back into kafka
+        producer.send(config.KAFKA['topic']['rcas_reddit_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
+
+        #time.sleep(3)
+
+if __name__ == '__main__':
+    twitter_sentiment()
+    #reddit_sentiment()

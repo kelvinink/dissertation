@@ -62,7 +62,7 @@ if __name__ == '__main__':
     attrs = ["id", "created_utc", "link_id", "link_title", "subreddit_id",
              "score", "stickied", "likes", "permalink", "body"]
 
-    topic = "rcas_raw"
+    topic = "rcas_reddit_raw"
 
     redditStreamer = RedditStreamer()
     redditStreamer.stream2kafka('CryptoCurrency', topic, attrs)

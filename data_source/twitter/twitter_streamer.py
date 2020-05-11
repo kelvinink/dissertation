@@ -54,7 +54,7 @@ class TwitterListener(tweepy.streaming.StreamListener):
     def __init__(self, sink, attrs):
         self.sink = sink
         self.attrs = attrs
-        self.kafka_topic = "rcas_raw"
+        self.kafka_topic = "rcas_twitter_raw"
 
     def on_data(self, data):
         try:
@@ -100,5 +100,3 @@ if __name__ == '__main__':
     twitter_streamer = TwitterStreamer()
     #twitter_streamer.stream2file(outFile, tag_list, attrs)
     twitter_streamer.stream2kafka(KafkaProducer(bootstrap_servers=['129.204.135.185:19092']), tag_list, attrs)
-
-    
