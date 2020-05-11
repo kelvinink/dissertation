@@ -1,0 +1,12 @@
+version: '3'
+
+networks: 
+  rcas: 
+    external: true
+
+services:
+  rcas_data_source:
+    build: .
+    image: data_source:0.0.1
+    networks:
+      - rcas
