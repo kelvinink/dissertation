@@ -13,8 +13,8 @@ fi
 
 # Start the reddit streamer
 #python "./reddit/reddit_streamer.py"
-#status=$?
-#if [ $status -ne 0 ]; then
-#  echo "Failed to start reddit_streamer: $status"
-#  exit $status
-#fi
+##status=$?
+##if [ $status -ne 0 ]; then
+##  echo "Failed to start reddit_streamer: $status"
+##  exit $status
+##fi

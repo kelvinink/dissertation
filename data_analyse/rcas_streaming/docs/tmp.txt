@@ -1,0 +1,37 @@
+//    public static void socketStreamTest(StreamExecutionEnvironment env){
+//        DataStream<Tuple2<Integer, String>> dataStream = env
+//                .socketTextStream("localhost", 9999)
+//                .flatMap(new Splitter())
+//                .keyBy(0)
+//                .reduce(new MyReducer());
+//
+//        dataStream.print();
+//    }
+
+//    public static class MyReducer implements ReduceFunction<Tuple2<Integer, String>>{
+//        @Override
+//        public Tuple2<Integer, String> reduce(Tuple2<Integer, String> t1, Tuple2<Integer, String> t2) throws Exception {
+//            Tuple2<Integer, String> ret = new Tuple2<>(t2.f0, t1.f1 + " " + t2.f1);
+//            return ret;
+//        }
+//    }
+//
+//    public static class Splitter implements FlatMapFunction<String, Tuple2<Integer, String>> {
+//        @Override
+//        public void flatMap(String sentence, Collector<Tuple2<Integer, String>> out) throws Exception {
+//            for (String word: sentence.split(" ")) {
+//                out.collect(new Tuple2<Integer, String>(word.length(), word));
+//            }
+//        }
+//    }
+
+//    public static class ExtractText implements MapFunction<ObjectNode, String>{
+//        @Override
+//        public String map(ObjectNode jsonNodes) throws Exception {
+//            ObjectNode value = (ObjectNode)jsonNodes.get("value");
+//            if (value.has("text")){
+//                return value.get("text").asText();
+//            }
+//            return "";
+//        }
+//    }
