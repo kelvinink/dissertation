@@ -4,3 +4,4 @@ data_source/datasets/*
 data_source/twitter/tweets.txt
 data_source/reddit/reddit_comments.txt
 .idea/*
+data_analyse/rcas_streaming/target/*
