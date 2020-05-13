@@ -81,6 +81,9 @@ Transformation operators can keep states like counter, machine learning model or
 # Related Works
 
 # System Architecture
+<todo>Introduction to architecture, components</todo>
+<todo>Streaming Data Collection From Twitter And Reddit</todo>
+<todo>ML Service For Sentiment </todo>
 
 # Experimental Evaluation
 
