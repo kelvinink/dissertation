@@ -18,12 +18,9 @@ Since the creation of Bitcoin, cryptocurrencies are attracting significant atten
 * Significance of the paper
 * technologies that we used, pros including fault tolerent, scalability, critical experiment result
 
-Cryptocurrency is a kind of digital asset that's decentralized and secured by strong crypotography algorithms. Satoshi Nakamoto created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records which is linked by hash function. Hash function ensures that non of the records can be modified without being caught by others. 
+Cryptocurrency is a kind of digital asset that's decentralized and secured by strong crypotography algorithms. Satoshi Nakamoto created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records which is linked by hash function. Hash function ensures that non of the records can be modified without being caught by others. Since 2009, many other altcoins have been created. There are over 5000 altcoins in the cryptocurrency market till May 2020<ref>https://news.bitcoin.com/altcoins-why-over-5000/</ref>. The most famous altcoins include Ripple, Litecoin, Monero and more are created as a substitution for Bitcoin. These altcoins claim to offer better anonymity and faster transaction confirmation. However Bitcoin still take the lion share of the crypto market. On May 13, 2020, Bitcoin dominant 67.2% of the crypto market at the price $8893. Crypto market is highly fluctuated, over 30% of price fluctuation happens every day. So, investors need a timely price prediction system that can assit their decision making. 
 
-<todo>altcoin, proof-of-work scheme, proof-of-stake scheme</todo>
-Since 2009, many other altcoins have been created. 
-
-<todo>crypto coin market, price, historycal high, current status, fluctuation</todo>
+<todo>introduce some real-time attempts of cryptocurrency analysis</todo>
 
 The Efficient Market Hypothesis states that current stock prices have reflected all the available information. And price variation is largely driven by incoming information. These new information broadcasts on social media like twitter and reddit rappidly. Researchers have devoted to find the correlation between public mood and stock price. One approach is to do sentiment analysis on tweets by applying machine learning algorithms. 
 
@@ -51,7 +48,7 @@ For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for
 <ref>https://dl.gi.de/bitstream/handle/20.500.12116/20456/327.pdf?sequence=1</ref>
 <ref>https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html</ref>
 
-<ref>who proposed mapreduce</ref>MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, such that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. MapReduce is a highly scalable programming model that can distribute data and computation to thousands of commodity machines. It uses re-execution as a mechanism for providing fault tolerance. To take the advantage of locality, MapReduce schedule map tasks to machines that are near to the input data. This is opposite to traditional ETL, which pulls all needed data from data warehouse to the execution machine. <todo>It's based on the fact that data size is usually far more larger than map tasks code size.</todo>
+<ref>who proposed mapreduce</ref>MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, such that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. MapReduce is a highly scalable programming model that can distribute data and computation to thousands of commodity machines. It uses re-execution as a mechanism for providing fault tolerance. To take the advantage of locality, MapReduce schedule map tasks to machines that are near to the input data. This is opposite to traditional ETL, which pulls all needed data from data warehouse to the execution machine. MapReduce makes the decision based on the fact that data size is usually far more larger than map tasks code size.
 
 ## Hadoop
 Hadoop is a big data processing framwork inspired by GFS and MapReduce. It can scale out computation to many commodity machines. Hadoop is compose of Hadoop Distributed File System(HDFS) and Hadoop MapReduce. Both of the two components employ the master slave architecture. HDFS is a distributed file system that can manage large volume of data. It's an open source version of GFS. HDFS consist of a namenode and multiple datanodes. The namenode stores metadata of the distributed file system, including permissions, disk quota, access time etc. To read or write a file, HDFS clients must consult the namenode first. The namenode returns location awared metadata about where to read or write a file. Datanodes are where data actually stored. They register to the namenode and periodicly send heartbeats and block reports to the namenode. Block reports contain information of the blocks that datanode possesses. Hadoop MapReduce is a programming model for large scale data processing. Jobs are submmited through the jobtracker which is the master. The jobtracker keeps track of all MapReduce jobs and assign map or reduce tasks to tasktrackers. Tasktrackers are slave nodes which execute map or reduce tasks. The jobtracker monitor status of tasktrackers through heartbeats sent by tasktrackers. If a tasktracker is down, the jobtracker will reschedule those tasks to other tasktrackers.
@@ -81,9 +78,18 @@ Transformation operators can keep states like counter, machine learning model or
 # Related Works
 
 # System Architecture
-<todo>Introduction to architecture, components</todo>
-<todo>Streaming Data Collection From Twitter And Reddit</todo>
-<todo>ML Service For Sentiment </todo>
+<todo>Introduction to architecture, components, components are running in docker container</todo>
+
+## Streaming Data Source
+<ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
+We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source submodule. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, operating system, comment text.
+
+## Streaming Message Queue
+All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster with three brokers.
+
+## ML Services
+## Real-Time Data Analysis
+## Visualization
 
 # Experimental Evaluation
 
