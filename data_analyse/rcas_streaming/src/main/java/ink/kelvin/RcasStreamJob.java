@@ -44,13 +44,14 @@ public class RcasStreamJob {
         return tweetStream.filter(t -> t.lang.equals("en"))
                 .map(t -> t.text)
                 .flatMap(new Splitter())
+                .filter(t -> !isStopWord(t.f0.toLowerCase()))
                 .keyBy(0)
-                .sum(1)
-                .filter(t -> !isStopWord(t.f0.toLowerCase()));
+                .sum(1);
     }
 
     public static DataStream<Tuple3<Double, Double, Double>> AnalyTweetWindowNegNeuPos(DataStream<Tweet> tweetStream, Integer seconds){
         return tweetStream
+                .filter(t -> t.lang.equals("en"))
                 .flatMap(new FlatMapFunction<Tweet, Tuple3<Double, Double, Double>>() {
                     @Override
                     public void flatMap(Tweet tweet, Collector<Tuple3<Double, Double, Double>> collector) throws Exception {

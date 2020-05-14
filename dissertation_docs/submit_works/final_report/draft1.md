@@ -1,3 +1,9 @@
+# Title
+Real-time Cryptocurrency Analysis System
+
+# Contacts
+Liang, Zhihao  kelliang@connect.hku.hk
+
 # Outline
 * Abstract
 * Introduction
@@ -79,13 +85,15 @@ Transformation operators can keep states like counter, machine learning model or
 
 # System Architecture
 <todo>Introduction to architecture, components, components are running in docker container</todo>
+The overall architecture of RCAS system is shown in Figure 1. The system consist of five subsystems. (1) a streaming data source that collect data from Twitter streaming API; (2) a streaming message queue that stores and distribute data collected from data source; (3) a machine learning service that provides sentiment analysis services; (4) a streaming data analysis subsystem that can analyse data in distributed cluster; (5) a visualization module for displaying results. 
+
 
 ## Streaming Data Source
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
-We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source submodule. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, operating system, comment text.
+We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source submodule. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, operating system, comment text.
 
 ## Streaming Message Queue
-All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster with three brokers.
+Streaming message queue is one of the most important components of the system. It play as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster with three brokers. 
 
 ## ML Services
 ## Real-Time Data Analysis
