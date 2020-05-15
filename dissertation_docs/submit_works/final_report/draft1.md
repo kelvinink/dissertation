@@ -3,6 +3,7 @@ Real-time Cryptocurrency Analysis System
 
 # Contacts
 Liang, Zhihao  kelliang@connect.hku.hk
+Wang, Xue
 
 # Outline
 * Abstract
@@ -89,7 +90,7 @@ The overall architecture of RCAS system is shown in Figure 1. The system consist
 
 ## Streaming Data Source
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
-We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source submodule. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, operating system, comment text.
+We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, operating system, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out.
 
 ## Streaming Message Queue
 Streaming message queue is one of the core building blocks of the system. It play as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster with three brokers. 
