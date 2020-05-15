@@ -55,6 +55,7 @@ class RedditStreamer:
         for attr in attrs:
             item = str(comment.__dict__[attr]).replace('\n', '')
             record[attr] = item if item is not None else ""
+
         return record
 
 

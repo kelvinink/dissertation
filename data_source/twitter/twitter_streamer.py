@@ -66,6 +66,9 @@ class TwitterListener(tweepy.streaming.StreamListener):
                 item = str(json_tweet[attr]).replace('\n', '')
                 record[attr] = item if item is not None else ""
 
+            if record["lang"] != "en":
+                return True
+
             if isinstance(self.sink, KafkaProducer):
                 self.sink.send(self.kafka_topic, json.dumps(record).encode('utf-8'))
                 print(json.dumps(record).encode('utf-8'))
