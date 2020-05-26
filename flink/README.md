@@ -14,6 +14,6 @@ Make sure to call these scripts on the hosts on which you want to start/stop the
 # Docker Flink
 ## Taskmanager Scale Up
 ```
-docker-compose scale taskmanager=<N>
+docker-compose --scale taskmanager=<N>
 ```
 
