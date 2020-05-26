@@ -14,7 +14,7 @@ def kafka_consumer(topic):
     return KafkaConsumer(
         topic,
         bootstrap_servers=config.KAFKA['bootstrap_servers'],
-        auto_offset_reset='earliest'
+        group_id = "sentiment"
     )
 
 def twitter_sentiment():
@@ -23,13 +23,12 @@ def twitter_sentiment():
 
     # Fetching data from kafka
     for msg in consumer:
-        # message value and key are raw bytes -- decode if necessary!
-        # e.g., for unicode: `message.value.decode('utf-8')`
-        # print(message)
-
         # Extracting text
         msg_val = json.loads(msg.value.decode('utf-8'))
-        text = msg_val["text"]
+        try:
+            text = msg_val["text"]
+        except BaseException as e:
+            continue
 
         # Call sentiment analysis service
         url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
@@ -47,21 +46,18 @@ def twitter_sentiment():
         # Pushing analyzed data back into kafka
         producer.send(config.KAFKA['topic']['rcas_twitter_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
 
-        #time.sleep(3)
-
 def reddit_sentiment():
     consumer = kafka_consumer(config.KAFKA['topic']['rcas_reddit_raw'])
     producer = kafka_producer()
 
     # Fetching data from kafka
     for msg in consumer:
-        # message value and key are raw bytes -- decode if necessary!
-        # e.g., for unicode: `message.value.decode('utf-8')`
-        # print(message)
-
         # Extracting text
         msg_val = json.loads(msg.value.decode('utf-8'))
-        text = msg_val["body"]
+        try:
+            text = msg_val["body"]
+        except BaseException as e:
+            continue
 
         # Call sentiment analysis service
         url = "http://{}:{}/api/ml/sentiment?text='{}'".format(
@@ -78,8 +74,6 @@ def reddit_sentiment():
 
         # Pushing analyzed data back into kafka
         producer.send(config.KAFKA['topic']['rcas_reddit_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
-
-        #time.sleep(3)
 
 if __name__ == '__main__':
     twitter_sentiment()

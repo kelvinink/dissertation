@@ -2,7 +2,7 @@ import time
 from kafka import KafkaConsumer
 
 bootstrap_servers=['129.204.135.185:19092']
-topic = 'after_sentiment'
+topic = 'rcas_twitter_raw'
 
 
 # To consume latest messages and auto-commit offsets

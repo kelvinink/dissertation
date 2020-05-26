@@ -6,8 +6,12 @@ import json
 import datetime
 
 from kafka import KafkaProducer
-
 from data_source.twitter import twitter_credentials
+
+#################### Configuration ####################
+bootstrap_servers = ['129.204.135.185:19092']
+kafka_topic = "rcas_twitter_raw"
+#######################################################
 
 
 class TwitterAuthenticator():
@@ -54,7 +58,7 @@ class TwitterListener(tweepy.streaming.StreamListener):
     def __init__(self, sink, attrs):
         self.sink = sink
         self.attrs = attrs
-        self.kafka_topic = "rcas_twitter_raw"
+        self.kafka_topic = kafka_topic
 
     def on_data(self, data):
         try:
@@ -94,7 +98,7 @@ if __name__ == '__main__':
         "Ripple", "Litecoin", "Tether", "Libra", "Monero"]
 
     attrs = ["id_str", "created_at", "quote_count", "reply_count", "retweet_count", "favorite_count",
-            "geo", "coordinates",  "timestamp_ms", "lang", "source", "text"]
+            "geo", "coordinates",  "timestamp_ms", "lang", "text"]
 
     curr_time = datetime.datetime.now()
     daymonth = curr_time.strftime("%Y%m%d")
@@ -102,4 +106,4 @@ if __name__ == '__main__':
         
     twitter_streamer = TwitterStreamer()
     #twitter_streamer.stream2file(outFile, tag_list, attrs)
-    twitter_streamer.stream2kafka(KafkaProducer(bootstrap_servers=['129.204.135.185:19092']), tag_list, attrs)
+    twitter_streamer.stream2kafka(KafkaProducer(bootstrap_servers=bootstrap_servers), tag_list, attrs)

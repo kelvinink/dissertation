@@ -8,8 +8,10 @@ from kafka import KafkaProducer
 
 from data_source.reddit import reddit_credentials
 
-
-bootstrap_servers=['129.204.135.185:19092']
+#################### Configuration ####################
+bootstrap_servers = ['129.204.135.185:19092']
+kafka_topic = "rcas_twitter_raw"
+#######################################################
 
 
 class RedditStreamer:
@@ -63,8 +65,6 @@ if __name__ == '__main__':
     attrs = ["id", "created_utc", "link_id", "link_title", "subreddit_id",
              "score", "stickied", "likes", "permalink", "body"]
 
-    topic = "rcas_reddit_raw"
-
     redditStreamer = RedditStreamer()
-    redditStreamer.stream2kafka('CryptoCurrency', topic, attrs)
+    redditStreamer.stream2kafka('CryptoCurrency', kafka_topic, attrs)
     #redditStreamer.stream2file('CryptoCurrency', attrs)

@@ -35,16 +35,23 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 public class RcasStreamJob {
+    // ##################### Configuration #####################
+    static String bootstrapServer = "129.204.135.185:19092";
+    static String kafkaTopic = "rcas_twitter_after_sentiment";
+    static String kafkaGroupID = "flink";
+    static String RedisHost = "localhost";
+    // #########################################################
+
     private static DataStream<ObjectNode> makeKafkaStream(StreamExecutionEnvironment env) {
         Properties props = new Properties();
-        props.setProperty("bootstrap.servers", "129.204.135.185:19092");
-        props.setProperty("group.id", "flink");
+        props.setProperty("bootstrap.servers", bootstrapServer);
+        props.setProperty("group.id", kafkaGroupID);
 
         // More info about JSONKeyValueDeserializationSchema is on
         // https://ci.apache.org/projects/flink/flink-docs-release-1.9/api/java/org/apache/flink/streaming/util/serialization/JSONKeyValueDeserializationSchema.html
         FlinkKafkaConsumer<ObjectNode> kafkaConsumer = new FlinkKafkaConsumer<>(
-                "rcas_twitter_after_sentiment", new JSONKeyValueDeserializationSchema(false), props);
-        kafkaConsumer.setStartFromLatest();
+                kafkaTopic, new JSONKeyValueDeserializationSchema(false), props);
+        //kafkaConsumer.setStartFromLatest();
 
         return env.addSource(kafkaConsumer);
     }
@@ -52,14 +59,24 @@ public class RcasStreamJob {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
+        env.enableCheckpointing(3000);
 
-        FlinkJedisPoolConfig redisConf = new FlinkJedisPoolConfig.Builder().setHost("localhost").build();
+        FlinkJedisPoolConfig redisConf = new FlinkJedisPoolConfig.Builder()
+                .setHost(RedisHost)
+                .setMaxTotal(128)
+                .setTimeout(10*1000)
+                .build();
+
         DataStream<ObjectNode> kafkaStream = makeKafkaStream(env);
         DataStream<Tweet> tweetStream = kafkaStream.map(new ExtractTweet());
 
-        AnalyTweetWindowNegNeuPos(tweetStream, 5).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
-        AnalyProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
-        AnalyWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
+        AnalyTweetWindowNegNeuPos(tweetStream, 5).print();
+        AnalyProcessStatistics(tweetStream).print();
+        AnalyWordCloud(tweetStream).print();
+
+//        AnalyTweetWindowNegNeuPos(tweetStream, 5).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
+//        AnalyProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
+//        AnalyWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
         env.execute("RCAS Analysis Started!");
     }
@@ -217,7 +234,6 @@ public class RcasStreamJob {
             tweet.coordinates = value.get("coordinates").asText("");
             tweet.timestamp_ms = value.get("timestamp_ms").asText("");
             tweet.lang = value.get("lang").asText("");
-            tweet.source = value.get("source").asText("");
             tweet.text = value.get("text").asText("");
             tweet.sentiment_neg = value.get("sentiment").get("neg").asDouble(0.0);
             tweet.sentiment_neu = value.get("sentiment").get("neu").asDouble(0.0);
@@ -264,7 +280,6 @@ public class RcasStreamJob {
         public String  coordinates;
         public String  timestamp_ms;
         public String  lang;
-        public String  source;
         public String  text;
         public Double  sentiment_neg;
         public Double  sentiment_neu;
@@ -274,7 +289,7 @@ public class RcasStreamJob {
         public Tweet(){}
         public String toString(){
             return id_str + " " + created_at + " " + quote_count + " " + reply_count + " " + retweet_count + " " + favorite_count + " " +
-                    geo + " " + coordinates + " " + timestamp_ms + " " + lang + " " + source + " " + text + " " +
+                    geo + " " + coordinates + " " + timestamp_ms + " " + lang  + " " + text + " " +
                     sentiment_neg + " " + sentiment_neu + " " + sentiment_pos + " " + sentiment_compound;
         }
     }
