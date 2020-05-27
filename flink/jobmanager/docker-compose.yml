@@ -5,6 +5,8 @@ services:
     image: flink:scala_2.12
     ports:
       - "6123:6123"
+      - "6124:6124"
+      - "6125:6125"
       - "8081:8081"
     command: jobmanager
     volumes:
