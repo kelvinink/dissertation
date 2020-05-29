@@ -20,7 +20,7 @@ def list_topics(topic):
 
 
 if __name__ == '__main__':
-    t = 'raw'
+    t = 't1'
     create_topic(t)
     list_topics(t)
     delete_topic(t)

@@ -31,7 +31,11 @@ docker exec -it kafka_kafka1_1 bash
 # Create a New Topic
 ```shell
 docker exec -it kafka1 bash
-kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic kelvin_topic
+kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 8 --topic rcas_twitter_raw
+kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 8 --topic rcas_twitter_after_sentiment
+
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_twitter_raw --partitions 8
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_twitter_after_sentiment --partitions 8
 ```
 
 # List Topics
