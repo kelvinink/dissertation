@@ -14,7 +14,6 @@ def kafka_consumer(topic):
     return KafkaConsumer(
         topic,
         bootstrap_servers=config.KAFKA['bootstrap_servers'],
-        group_id="sentiment"
     )
 
 def twitter_sentiment():
