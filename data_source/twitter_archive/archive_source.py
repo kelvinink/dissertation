@@ -5,7 +5,7 @@ import subprocess
 from kafka import KafkaProducer
 
 #################### Configuration ####################
-bootstrap_servers = ['129.204.135.185:19092']
+bootstrap_servers = ['106.52.240.156:19092']
 kafka_topic = "rcas_twitter_raw"
 data_root = "/Users/bytedance/Documents/personal/twitter_data/2019"
 #######################################################

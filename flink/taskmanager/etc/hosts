@@ -5,5 +5,7 @@ ff00::0	ip6-mcastprefix
 ff02::1	ip6-allnodes
 ff02::2	ip6-allrouters
 
-106.13.90.40 fslave1
-129.204.135.185 fmaster
+106.52.244.25 fslave1
+106.53.107.251 fslave2
+106.52.252.102 fslave3
+106.52.244.25 fmaster
