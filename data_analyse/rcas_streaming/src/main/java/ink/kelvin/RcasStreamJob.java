@@ -47,8 +47,6 @@ public class RcasStreamJob {
         props.setProperty("bootstrap.servers", bootstrapServer);
         props.setProperty("group.id", kafkaGroupID);
 
-        // More info about JSONKeyValueDeserializationSchema is on
-        // https://ci.apache.org/projects/flink/flink-docs-release-1.9/api/java/org/apache/flink/streaming/util/serialization/JSONKeyValueDeserializationSchema.html
         FlinkKafkaConsumer<ObjectNode> kafkaConsumer = new FlinkKafkaConsumer<>(
                 kafkaTopic, new JSONKeyValueDeserializationSchema(false), props);
         //kafkaConsumer.setStartFromLatest();
@@ -59,7 +57,7 @@ public class RcasStreamJob {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
-        env.enableCheckpointing(3000);
+        env.enableCheckpointing(1000*60);
 
         FlinkJedisPoolConfig redisConf = new FlinkJedisPoolConfig.Builder()
                 .setHost(RedisHost)
@@ -316,5 +314,8 @@ public class RcasStreamJob {
                     score + " " +stickied + " " + likes + " " + permalink + " " + text + " " +
                     sentiment_neg + " " + sentiment_neu + " " + sentiment_pos + " " + sentiment_compound;
         }
+
+        // More info about JSONKeyValueDeserializationSchema is on
+        // https://ci.apache.org/projects/flink/flink-docs-release-1.9/api/java/org/apache/flink/streaming/util/serialization/JSONKeyValueDeserializationSchema.html
     }
 }
