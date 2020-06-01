@@ -13,5 +13,6 @@ services:
       - ./conf:/opt/flink/conf
       - ./etc/hostname:/etc/hostname
       - ./etc/hosts:/etc/hosts
+      - ./.ssh:/root/.ssh
     environment:
       - JOB_MANAGER_RPC_ADDRESS=fmaster
