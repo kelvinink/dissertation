@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 public class RcasStreamJob {
     // ##################### Configuration #####################
-    static String bootstrapServer = "106.52.240.156:19092";
+    static String bootstrapServer = "129.204.135.185:19092";
     static String kafkaTopic = "rcas_twitter_after_sentiment";
     static String kafkaGroupID = "flink";
     static String RedisHost = "localhost";

@@ -6,7 +6,7 @@ KAFKA = {
         "rcas_reddit_after_sentiment" : "rcas_reddit_after_sentiment"
     },
 
-    "bootstrap_servers" : ['106.52.240.156:19092'],
+    "bootstrap_servers" : ['129.204.135.185:19092'],
 }
 
 MLSERVICE = {
