@@ -4,23 +4,18 @@
 #### 1. Download Java
 Download JDK from https://www.oracle.com/java/technologies/javase-jdk11-downloads.html and copy it to your machine
 ```shell
-scp /Users/bytedance/Documents/personal/software/java/jdk-11.0.6_linux-x64_bin.tar.gz osboxes@destionation_host:~/
+scp -i /Users/bytedance/Documents/personal/ecs/tcc /Users/bytedance/Documents/personal/software/java/jdk-11.0.6_linux-x64_bin.tar.gz ubuntu@129.204.135.185:~/
 ```
 
 #### 2. Move the .tar.gz archive binary to the installation directory. Unpack the tarball and install Java.
 ```shell
-ssh osboxes@192.168.0.106
+ssh ubuntu@129.204.135.185
 
 mkdir -p /usr/java
-
 sudo cp ~/jdk-11.0.6_linux-x64_bin.tar.gz /usr/java/
-
 cd /usr/java
-
-sudo chown root:root jdk-11.0.6_linux-x64_bin.tar.gz
-
+sudo chown ubuntu:ubuntu jdk-11.0.6_linux-x64_bin.tar.gz
 sudo tar zxvf jdk-11.0.6_linux-x64_bin.tar.gz
-
 ```
 
 #### 3. The Java files are installed in a directory called jre1.8.0_73 in the current directory. In this example, it is installed in the /usr/java/jre1.8.0_73 directory. When the installation has completed, you will see the word Done.
@@ -36,7 +31,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 #### 5. Delete the .tar.gz file if you want to save disk space.
 
 
-
 ## Install Flink
 ### Setup SSH Login Without Password
 ```shell
@@ -49,32 +43,29 @@ ssh-keygen
 ### Download Flink
 ```shell
 cd /opt 
-sudo wget https://downloads.apache.org/flink/flink-1.10.0/flink-1.10.0-bin-scala_2.11.tgz
+sudo wget https://downloads.apache.org/flink/flink-1.10.1/flink-1.10.1-bin-scala_2.11.tgz
+
 
 # or
-scp /Users/bytedance/Documents/personal/software/flink-1.10.0/flink-1.10.0-bin-scala_2.11.tgz osboxes@hostname:~/
+scp -i /Users/bytedance/Documents/personal/ecs/tcc /Users/bytedance/Documents/personal/software/flink-1.10.0/flink-1.10.0-bin-scala_2.11.tgz ubuntu@129.204.135.185:~/
 
-ssh osboxes@192.168.0.106
-
+ssh ubuntu@129.204.135.185
 sudo cp ~/flink-1.10.0-bin-scala_2.11.tgz /opt
-
 cd /opt
-
-sudo chown root:root flink-1.10.0-bin-scala_2.11.tgz
-
+sudo chown ubuntu:ubuntu flink-1.10.0-bin-scala_2.11.tgz
 sudo tar zxvf flink-1.10.0-bin-scala_2.11.tgz
 ```
 
 ### Export Env Variable
 Open .bashrc or .bash_profile
 ```
-export PATH=$PATH:/opt/flink-1.10.0/bin
+export PATH=$PATH:/opt/flink-1.10.1/bin
 ```
 
 ### Modify flink-conf.yaml
 Please see the configuration page for details and additional configuration options.
 
-In particular,
+In particular
 * the amount of available memory per JobManager (jobmanager.heap.size),
 * the amount of available memory per TaskManager (taskmanager.memory.process.size and check memory setup guide),
 * the number of available CPUs per machine (taskmanager.numberOfTaskSlots),
@@ -91,14 +82,14 @@ vim  flink/conf/flink-conf.yaml
 jobmanager.rpc.address: fmaster
 
 ##配置slave节点可用内存，单位MB
-taskmanager.heap.mb: 2048
+taskmanager.heap.mb: 12000m
 
 ##配置每个节点的可用slot，1 核CPU对应 1 slot
 ##the number of available CPUs per machine 
-taskmanager.numberOfTaskSlots: 2
+taskmanager.numberOfTaskSlots: 8
 
 ##默认并行度 1 slot资源
-parallelism.default: 1
+parallelism.default: 8
 
 ##JAVA_HOME
 env.java.home: /usr/java/jdk-11.0.6
@@ -115,7 +106,7 @@ fslave1
 fslave2
 
 ##################### /etc/hostname #####################
-Shoud modify it to the hostname of this node
+Should modify it to the hostname of this node
 
 ##################### /etc/hosts #####################
 Copy paste to all nodes
