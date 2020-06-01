@@ -76,7 +76,7 @@ public class RcasStreamJob {
 //        AnalyProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
 //        AnalyWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
-        env.execute("RCAS Analysis Started!");
+        env.execute("RCAS Analysis");
     }
 
     public static DataStream<Tuple2<String, Integer>> AnalyWordCloud(DataStream<Tweet> tweetStream){

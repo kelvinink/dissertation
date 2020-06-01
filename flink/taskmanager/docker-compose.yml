@@ -2,7 +2,7 @@ version: "3"
 
 services:
   taskmanager:
-    image: flink:scala_2.12
+    image:  flink:1.10.0
     ports:
       - "6121:6121"
       - "6122:6122"

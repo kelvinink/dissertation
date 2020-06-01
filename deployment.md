@@ -30,3 +30,9 @@ kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_twitter_a
 
 kafka-topics.sh --describe --bootstrap-server localhost:9092
 ```
+
+# Fix Crypto Virus
+```shell
+https://github.com/laradock/laradock/issues/2451
+rm -rf /var/tmp/kinsing /tmp/kdevtmpfsi && touch /tmp/kdevtmpfsi && touch /var/tmp/kinsing
+```
