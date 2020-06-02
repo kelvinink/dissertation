@@ -57,7 +57,8 @@ public class RcasStreamJob {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
-        env.enableCheckpointing(1000*60);
+        //env.enableCheckpointing(1000*60);
+        //env.setParallelism(6);
 
         FlinkJedisPoolConfig redisConf = new FlinkJedisPoolConfig.Builder()
                 .setHost(RedisHost)
