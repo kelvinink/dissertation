@@ -35,4 +35,15 @@ kafka-topics.sh --describe --bootstrap-server localhost:9092
 ```shell
 https://github.com/laradock/laradock/issues/2451
 rm -rf /var/tmp/kinsing /tmp/kdevtmpfsi && touch /tmp/kdevtmpfsi && touch /var/tmp/kinsing
+
+
+https://blog.csdn.net/Cupster/article/details/104498884
+vim /tmp/kill_kdevtmpfsi.sh
+
+ps -aux | grep kinsing |grep -v grep|cut -c 9-15 | xargs kill -9 
+ps -aux | grep kdevtmpfsi |grep -v grep|cut -c 9-15 | xargs kill -9 
+rm -f /var/tmp/kinsing
+rm -f /tmp/kdevtmpfsi
+
+* * * * * /tmp/kill_kdevtmpfsi.sh
 ```

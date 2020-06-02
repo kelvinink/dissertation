@@ -94,6 +94,9 @@ parallelism.default: 8
 ##JAVA_HOME
 env.java.home: /usr/java/jdk-11.0.6
 
+## AKKa Timeout
+akka.client.timeout: 10min
+
 ##################### conf/master #####################
 vim masters
 
@@ -104,6 +107,7 @@ vim slaves
 
 fslave1
 fslave2
+fslave3
 
 ##################### /etc/hostname #####################
 Should modify it to the hostname of this node
@@ -114,6 +118,8 @@ Copy paste to all nodes
 192.168.0.106 fmaster
 192.168.0.105 fslave1
 192.168.0.107 fslave2
+192.168.0.108 fslave3
+
 ```
 
 ### Submit Example Job
