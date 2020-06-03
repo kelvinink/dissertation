@@ -26,8 +26,11 @@ import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema;
 import org.apache.flink.util.Collector;
 
+import java.security.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -69,13 +72,13 @@ public class RcasStreamJob {
         DataStream<ObjectNode> kafkaStream = makeKafkaStream(env);
         DataStream<Tweet> tweetStream = kafkaStream.map(new ExtractTweet());
 
-        AnalyTweetWindowNegNeuPos(tweetStream, 5).print();
-        AnalyProcessStatistics(tweetStream).print();
-        AnalyWordCloud(tweetStream).print();
+//        AnalyTweetWindowNegNeuPos(tweetStream, 5).print();
+//        AnalyProcessStatistics(tweetStream).print();
+//        AnalyWordCloud(tweetStream).print();
 
-//        AnalyTweetWindowNegNeuPos(tweetStream, 5).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
-//        AnalyProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
-//        AnalyWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
+        AnalyTweetWindowNegNeuPos(tweetStream, 5).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
+        AnalyProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
+        AnalyWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
         env.execute("RCAS Analysis");
     }
@@ -99,7 +102,7 @@ public class RcasStreamJob {
                 .flatMap(new FlatMapFunction<Tweet, Tuple4<String, Double, Double, Double>>() {
                     @Override
                     public void flatMap(Tweet tweet, Collector<Tuple4<String, Double, Double, Double>> collector) throws Exception {
-                        Tuple4<String, Double, Double, Double> t = new Tuple4<String, Double, Double, Double>(tweet.timestamp_ms, tweet.sentiment_neg, tweet.sentiment_neu, tweet.sentiment_pos);
+                        Tuple4<String, Double, Double, Double> t = new Tuple4<String, Double, Double, Double>(String.valueOf(Instant.now().getEpochSecond()), tweet.sentiment_neg, tweet.sentiment_neu, tweet.sentiment_pos);
                         collector.collect(t);
                     }})
                 .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(seconds)))
@@ -121,7 +124,7 @@ public class RcasStreamJob {
 
         @Override
         public String getKeyFromData(Tuple2<Long, Long> data) {
-            return "process_statistics";
+            return "ps";
         }
 
         @Override
@@ -139,7 +142,7 @@ public class RcasStreamJob {
 
         @Override
         public String getKeyFromData(Tuple4<String, Double, Double, Double> data) {
-            return data.f1.toString() + " " + data.f2.toString() + " " + data.f2.toString();
+            return data.f1.toString() + " " + data.f2.toString() + " " + data.f3.toString();
         }
 
         @Override
