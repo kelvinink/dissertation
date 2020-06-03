@@ -7,10 +7,12 @@ from datetime import datetime
 
 app = Flask(__name__, static_url_path='')
 
+##################### Configuration #####################
 red = redis.Redis(host='localhost', port=6379, db=0)
 redis_wc = 'word_cloud'
 redis_nnp = 'nnp'
 redis_ps = 'ps'
+##################### Configuration #####################
 
 def get_ps():
     ps = red.get(redis_ps)

@@ -1,9 +1,11 @@
 import redis
 
+##################### Configuration #####################
 red = redis.Redis(host='localhost', port=6379, db=0)
 redis_wc = 'word_cloud'
 redis_nnp = 'nnp'
 redis_ps = 'ps'
+##################### Configuration #####################
 
 # def get_nnp(num):
 #     nnp = red.zrevrange(name=redis_nnp, start=0, end=num, withscores=True)

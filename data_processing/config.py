@@ -10,7 +10,7 @@ KAFKA = {
 }
 
 MLSERVICE = {
-    "host" : "rcas_nginx",
+    "host" : "localhost",
     "port" : "8080"
 }
 
