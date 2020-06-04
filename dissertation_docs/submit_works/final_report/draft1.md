@@ -47,7 +47,6 @@ The rest of paper is structured as follows.
 * Spark
 * Flink
 
-
 ## Traditional ETL and Business Intelligence
 For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target data store. However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 
@@ -90,13 +89,21 @@ The overall architecture of RCAS system is shown in Figure 1. The system consist
 
 ## Streaming Data Source
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
-We collect real-time data from the Twitter API. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the Tweepy library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of Twitter streaming API. It enables fast development of Twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out.
+We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. <todo>how many data did we collect</todo> We use the tweepy library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications. For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out. Other unusual characters, emoji are also removed from sentences.
 
 ## Streaming Message Queue
-Streaming message queue is one of the core building blocks of the system. It play as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster composed by three brokers.
+Streaming message queue is one of the core building blocks of the system. It play as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a Kafka cluster composed by 16 brokers. Kafka is an open sourced distributed messaging system for dealing with logs. In kafka, a stream of message is called a topic. Message producers can publish new messages to the topic. And message consumers can pull messages from a perticular topic. To maximize throughput, a topic is usually decomposed into multiple disjointed partitions. Thesee partitions are distributed among brokers that form the cluster. Multiple producers and consumers can operate on the same topic at the same time. 
 
-## ML Services
+<todo>comparing kafka and other message queues</todo>
+ActiveMQ、RabbitMQ、Kafka、RocketMQ、ZeroMQ
+
+In our system, we have 16 kafka brokers, each topic are decomposed into 16 partitions. We have created two topics: one for collecting data from twitter streaming API, the other is for storing messages which has been processed by our machine learning module.
+
+## Machine Learning Services
+
 ## Real-Time Data Analysis
+Data processed by ML service is then ready for aggregation analysis. 
+
 ## Visualization
 
 # Experimental Evaluation
