@@ -97,7 +97,7 @@ Streaming message queue is one of the core building blocks of the system. It pla
 <todo>comparing kafka and other message queues</todo>
 ActiveMQ、RabbitMQ、Kafka、RocketMQ、ZeroMQ
 
-In our system, we have 16 kafka brokers, each topic are decomposed into 16 partitions. We have created two topics: one for collecting data from twitter streaming API, the other is for storing messages which has been processed by our machine learning module.
+In our system, we have 16 kafka brokers, each topic are decomposed into 16 partitions. We have created two topics: one for collecting data from twitter streaming API, the other is for storing messages which has been processed by our machine learning service.
 
 ## Machine Learning Services
 
