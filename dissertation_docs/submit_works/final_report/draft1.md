@@ -151,7 +151,20 @@ sentiment_neu         Sentiment result, neutral value
 sentiment_pos         Sentiment result, positive value
 sentiment_compound    Sentiment result, compound value
 
+Our system present two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most frequently mentioned words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system. 
+### Word Cloud
+Word cloud is a chart that users can quickly perceive the most prominent term on it. The more important is a term, the large font size it has on the chart. To produce a word cloud we must supply a weighted list of words. Here is a sample list:
 
+Words         Count
+-------------------------
+bitcoin       39882
+good          28933
+rise          18839
+promotion     16893
+eth           12898
+...
+
+As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882.
 
 Components    Specifications
 -------------------------
