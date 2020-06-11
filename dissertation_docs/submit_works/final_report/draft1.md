@@ -104,7 +104,7 @@ Data processed by ML service is then ready for aggregation analysis. The framewo
 Aggregated result from flink is then published to external data store for visualization. The data store we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a data store that supports fast update. Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100000 requests per second at a single node. Considering the flexibilites that redis offers, we decide to use redis as our result data store. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
 
 # Experimental Evaluation
-We conduct experimental evaluation in tencent cloud.
+We conduct experimental evaluation with tencent cloud.
 
 ## Streaming Data Collection
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
@@ -130,9 +130,32 @@ Hard Disk     1×3720GB NVMe SSD
 ## Sentiment Analysis
 
 ## Data Aggregation
-Data returned from sentiment analysis include the following fields:
+We run aggregatoin subsystem on a flink standalone cluster with four tencent 'CN3.2XLARGE16' ECC nodes. Here is the configuration for each node:
+
+Components    Specifications
+-------------------------
+Model         CN3.2XLARGE16
+CPU           Intel Xeon Skylake 6146(3.2 GHz)
+#vCores       8
+RAM           16GB
+Network       6Gbps
+OS            Ubuntu:4.15.0-54-generic
+Hard Disk     1×50GB
+
+One of the nodes is the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12,000MB memory and 8 task slots.
+
+Data returned from sentiment analysis includes the following fields:
 
 <todo>should in table form</todo>
+Fields                Descriptions
+-------------------------------------------------
+sentiment_neg         Sentiment result, negative value
+sentiment_neu         Sentiment result, neutral value
+sentiment_pos         Sentiment result, positive value
+sentiment_compound    Sentiment result, compound value
+
+In particular, the three sentiment_xxx fields represent the weight of negative mood, neutral mood and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1. The sentiment_compound field consist the value takes into account of the other 3 sentiment values. In addtion to sentiment results, there are some other fields related to the tweets.
+
 Fields                Descriptions
 -------------------------------------------------
 id_str                ID of this message
@@ -146,12 +169,8 @@ coordinates           GPS coordination
 timestamp_ms          Timestamp of this message
 lang                  Language
 text                  Text body (user comments)
-sentiment_neg         Sentiment result, negative value
-sentiment_neu         Sentiment result, neutral value
-sentiment_pos         Sentiment result, positive value
-sentiment_compound    Sentiment result, compound value
 
-In particular, the three sentiment_xxx fields represent the weight of negative mood, neutral mood and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1.Our system presents two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
+Our system presents two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
 
 ### Word Cloud of Twitter User Comments
 Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight is a term, the large font size it has on the chart. To produce a word cloud we must supply a weighted list of words. The list is in word-count pair form. Here is a sample list:
@@ -168,20 +187,12 @@ eth           12898
 As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by extracting user comments from each tweet first. <todo>may be we can do word selection here</todo> Then we split these comments into words and aggregate the count. Finally, the results are written to redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topic at the time, which gives investors some sense of what's going on in the market.
 
 ### Opinion Variation
-We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to redis as a sorted set with a timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. <todo>Figurexxx shows an example result</todo>
+We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to redis as a sorted set with a timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. <todo>Figurexxx shows an example result</todo>
 
 ## Performance
 
 
-Components    Specifications
--------------------------
-Model         CN3.2XLARGE16
-CPU           Intel Xeon Skylake 6146(3.2 GHz)
-#vCores       8
-RAM           16GB
-Network       6Gbps
-OS            Ubuntu:4.15.0-54-generic
-Hard Disk     1×50GB
+
 
 
 # Discussion
