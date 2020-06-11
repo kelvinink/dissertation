@@ -97,7 +97,7 @@ def assemble_wc():
       <script type="text/javascript">anychart.onDocumentReady(function () {
       var data = [
     """
-    wc_list = get_wc(20)
+    wc_list = get_wc(30)
     data = ""
     i = 0
     for wc in wc_list:

@@ -80,7 +80,7 @@ Transformation operators can keep states like counter, machine learning model or
 # System Architecture
 Rcas is a system aims at providing cryptocurrency investors some insights with the help of sentiment analysis. The analysis starts by collecting comment messages from social media. We extract those fields that we concern and filter out the others. Then, these preprocessed data are fed into our sentiment analysis model and produce some sentiment statistics. The next step is to aggregate these sentiment analysis and display it on dashboard. 
 ![rcas system architecture](fig/RCAS.png)
-The overall architecture of RCAS system is shown in Figure 1. The system consist of five subsystems. (1) a streaming data source that collect data from Twitter streaming API; (2) a streaming message queue that stores and distribute data collected from data source; (3) a machine learning service that provides sentiment analysis services; (4) a streaming data analysis subsystem that can analyse data in distributed cluster; (5) a visualization module for displaying results. Our system runs and benchmarks on public cloud. To enable fast deployment, each of the components is run as docker container.
+The overall architecture of RCAS system is shown in Figure 1. The system consist of five subsystems. (1) a streaming data source that collect data from Twitter streaming API; (2) a streaming message queue that stores and distribute data collected from data source; (3) a machine learning service that provides sentiment analysis services; (4) a streaming data analysis subsystem that can analyse data in distributed cluster; (5) a visualization module for displaying results. Our system runs and benchmarks on public cloud. To enable fast deployment, each of the components is run as docker container. In the following sections, we will introduce these subsystems one by one.
 
 ## Streaming Data Source
 Streaming data source is a submodule that can streamingly push data into our system. It collects cryptocurrency related data from social media or any other channel. And performs some filtering that removes corrupted data. Then publishes them to the streaming message queue. Any social media platform are fine, such as twitter, reddit and facbook etc. The only difference is that the more diversify demogrphics is the platform the better result we will get.
@@ -101,7 +101,7 @@ Data processed by ML service is then ready for aggregation analysis. The framewo
 <todo>make a table comparison among flink, storm, spark, spark streaming</todo>
 
 ## Visualization
-Aggregated result from flink is then published to external data store for visualization. The data store we use is redis, an in-memory data store. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. In our case, we use sorted set and string. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results.
+Aggregated result from flink is then published to external data store for visualization. The data store we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a data store that supports fast update. Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100000 requests per second at a single node. Considering the flexibilites that redis offers, we decide to use redis as our result data store. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
 
 # Experimental Evaluation
 We conduct experimental evaluation in tencent cloud.
@@ -151,9 +151,10 @@ sentiment_neu         Sentiment result, neutral value
 sentiment_pos         Sentiment result, positive value
 sentiment_compound    Sentiment result, compound value
 
-Our system present two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most frequently mentioned words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system. 
-### Word Cloud
-Word cloud is a chart that users can quickly perceive the most prominent term on it. The more important is a term, the large font size it has on the chart. To produce a word cloud we must supply a weighted list of words. Here is a sample list:
+In particular, the three sentiment_xxx fields represent the weight of negative mood, neutral mood and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1.Our system presents two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
+
+### Word Cloud of Twitter User Comments
+Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight is a term, the large font size it has on the chart. To produce a word cloud we must supply a weighted list of words. The list is in word-count pair form. Here is a sample list:
 
 Words         Count
 -------------------------
@@ -164,7 +165,13 @@ promotion     16893
 eth           12898
 ...
 
-As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882.
+As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by extracting user comments from each tweet first. <todo>may be we can do word selection here</todo> Then we split these comments into words and aggregate the count. Finally, the results are written to redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topic at the time, which gives investors some sense of what's going on in the market.
+
+### Opinion Variation
+We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to redis as a sorted set with a timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. <todo>Figurexxx shows an example result</todo>
+
+## Performance
+
 
 Components    Specifications
 -------------------------
