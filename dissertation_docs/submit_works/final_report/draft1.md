@@ -42,7 +42,7 @@ The rest of paper is structured as follows.
 <todo>* History of big data</todo>
 
 ## Traditional ETL and Business Intelligence
-For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target data store. However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
+For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore. However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 
 ## MapReduce
 <ref>https://dl.gi.de/bitstream/handle/20.500.12116/20456/327.pdf?sequence=1</ref>
@@ -73,6 +73,7 @@ There are five basic building blocks that compose flink: stream, state, time, wi
 
 Transformation operators can keep states like counter, machine learning model or intermediate aggregation result. States are key-value store embeded in stateful operators. Since states can be accessed locally, flink applications achieve high throughput and low latency. Flink offers exactly-once state consistency by regularly checkpointing operator states to external storage. Flink employs light weight Chandy-Lamport algorithm for asynchronous distributed checkpointing. The algorithm allows checkpointing without halting the execution of tasks. So, checkpoint and normal task execution can run in parallel.
 
+There are many options for flink cluster deployment. Your may deploy it as a standalone cluster or on resource management platforms like YARN, Mesos, Kubernetes etc.
 <ref>https://flink.apache.org/flink-applications.html</ref>
 
 # Related Works
@@ -101,10 +102,10 @@ Data processed by ML service is then ready for aggregation analysis. The framewo
 <todo>make a table comparison among flink, storm, spark, spark streaming</todo>
 
 ## Visualization
-Aggregated result from flink is then published to external data store for visualization. The data store we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a data store that supports fast update. Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100000 requests per second at a single node. Considering the flexibilites that redis offers, we decide to use redis as our result data store. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
+Aggregated result from flink is then published to external datastore for visualization. The datastore we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a datastore that supports fast update. Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100000 requests per second at a single node. Considering the flexibilites that redis offers, we decide to use redis as our result datastore. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
 
 # Experimental Evaluation
-We conduct experimental evaluation with tencent cloud.
+In previous sections, we have presented the architectures of the rcas system. We have also demonstrated why we put kafka, flink and redis into our toolkit package. In this section, we conduct experiments on the system. All experiments were carried out on tencent cloud platform.
 
 ## Streaming Data Collection
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
@@ -130,7 +131,7 @@ Hard Disk     1×3720GB NVMe SSD
 ## Sentiment Analysis
 
 ## Data Aggregation
-We run aggregatoin subsystem on a flink standalone cluster with four tencent 'CN3.2XLARGE16' ECC nodes. Here is the configuration for each node:
+We run aggregation subsystem on a flink standalone cluster with four tencent 'CN3.2XLARGE16' ECC nodes. Here is the configuration for each node:
 
 Components    Specifications
 -------------------------
@@ -142,7 +143,7 @@ Network       6Gbps
 OS            Ubuntu:4.15.0-54-generic
 Hard Disk     1×50GB
 
-One of the nodes is the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12,000MB memory and 8 task slots.
+One of the nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12,000MB memory and 8 task slots.
 
 Data returned from sentiment analysis includes the following fields:
 
@@ -173,7 +174,7 @@ text                  Text body (user comments)
 Our system presents two indicators of cryptocurrency price trend. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
 
 ### Word Cloud of Twitter User Comments
-Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight is a term, the large font size it has on the chart. To produce a word cloud we must supply a weighted list of words. The list is in word-count pair form. Here is a sample list:
+Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight a term has, the larger font size it has on the chart. To produce a word cloud, we must supply a weighted list of words. The list is in word-count pair form. Here is a sample list:
 
 Words         Count
 -------------------------
@@ -184,19 +185,19 @@ promotion     16893
 eth           12898
 ...
 
-As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by extracting user comments from each tweet first. <todo>may be we can do word selection here</todo> Then we split these comments into words and aggregate the count. Finally, the results are written to redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topic at the time, which gives investors some sense of what's going on in the market.
+As is shown on the sample weighted list, bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by extracting user comments from each tweet first. <todo>may be we can do word selection here</todo> Then we split these comments into words and aggregate the count. Finally, the results are written to redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topics at the time, which gives investors some sense of what's going on in the market.
 
 ### Opinion Variation
-We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to redis as a sorted set with a timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. <todo>Figurexxx shows an example result</todo>
+We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to redis as a sorted set with current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. <todo>Figurexxx shows an example result</todo>
 
 ## Performance
-
-
-
-
+We monitor the performance of our system by inspecting the number of messages it can process per second. The summary of results is provided in the following table:
+<todo>#tweets/sec</todo>
+The system can process around <todo>xxx</todo> messages per second. The number of comments about cryptocurrency generated by twitter is around <todo>xxx</todo> each day. Using our system, you can handle that volumn of data without pressure. With the redis datastore, you can also serve more than 100,000 clients at the same time.
 
 # Discussion
-
+Our system only used several attributes of each tweets. In future, we plan to extend the system to analysis more attributes of tweets. This will give our users a broader overview to current status of cryptocurrencyies.
 # Conclusion
+In this paper, we presented a cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And introduced some pros and cons of using batch processing systems. Then, we illustrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: storm, spark streaming and flink. We concluded that flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world.
 
 # References
