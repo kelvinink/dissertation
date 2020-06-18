@@ -6,15 +6,15 @@ Liang, Zhihao  kelliang@connect.hku.hk
 Wang, Xue
 
 # Outline
-1. Abstract
-2. Introduction
-3. Background
-4. Related Works
-5. System Architecture
-6. Experimental Evaluation
-7. Discussion
-8. Conclusion
-9. References
+0. Abstract
+1. Introduction
+2. Background
+3. Related Works
+4. System Architecture
+5. Experimental Evaluation
+6. Discussion
+7. Conclusion
+8. References
 
 # Abstract
 Since the creation of Bitcoin, cryptocurrencies are attracting significant attentions from researchers. They have been proposing many solutions for analysing the price trend. One dimension of these researches is to analyse the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement near real-time processing on Spark framework. However Spark is a framework dedicated for batch processing, which suffers from high latency. To minimize latency, Spark has implemented streaming API by applying micro-batch processing. But its performance in iterative or interactive applications is still unsatisfactory. In the area of capital market, the price fluctuation is very fast. Analytics and stakeholders are demanding a timely system that can assist their decision making. In this background, the demand for a truely real-time crypotocurrency analysation platform is rising rapidly. In this paper, we proposed a Flink-based cryptocurrency analyzation system that can handle massive amount of data in real-time. Streaming data is evaluated continuously and the result is updated in seconds, not days or months.
@@ -33,25 +33,36 @@ The Efficient Market Hypothesis states that current stock prices have reflected 
 
 <todo>which is the first paper that do sentiment on social media to predict cryptocurrency price</todo>
 
-<todo>arrangement for the rest of the paper</todo>
-The rest of paper is structured as follows.
-<todo>introduce each setion</todo>
-
+The rest of paper is structured as follows. Section 2 describes the background of large scale distributed frameworks and stream processing. Section 3 survey some related works that try to analyse cryptocurrency movement. Section 4 presents the architecture of our system. We will also illustrate reasons of software stack selcetion in this section. In section 5, we show some experimental results and detail implementation. Senction 6 discuss the pros and cons of the system and direction of future works. Then the paper is end with a conclusion in section 7.
 
 # Background（凑字数的)
 <todo>* History of big data</todo>
 
 ## Traditional ETL and Business Intelligence
-For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore. However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
+For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore.
+
+However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. 
+
+Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 
 ## MapReduce
 <ref>https://dl.gi.de/bitstream/handle/20.500.12116/20456/327.pdf?sequence=1</ref>
 <ref>https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html</ref>
 
-<ref>who proposed mapreduce</ref>MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, so that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. MapReduce is a highly scalable programming model that can distribute data and computation to thousands of commodity machines. It uses re-execution as a mechanism for providing fault tolerance. To take the advantage of locality, MapReduce schedule map tasks to machines that are near to the input data. This is opposite to traditional ETL, which pulls all needed data from data warehouse to the execution machine. MapReduce makes the decision based on the fact that data size is usually far more larger than map tasks code size.
+<ref>who proposed mapreduce</ref>MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. 
+
+MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, so that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. 
+
+MapReduce is a highly scalable programming model that can distribute data and computation to thousands of commodity machines. It uses re-execution as a mechanism for providing fault tolerance. 
+
+To take the advantage of locality, MapReduce schedule map tasks to machines that are near to the input data. This is opposite to traditional ETL, which pulls all needed data from data warehouse to the execution machine. MapReduce makes the decision based on the fact that data size is usually far more larger than map tasks code size.
 
 ## Hadoop
-Hadoop is a big data processing framwork inspired by GFS and MapReduce. It can scale out computation to many commodity machines. Hadoop is compose of Hadoop Distributed File System(HDFS) and Hadoop MapReduce. Both of the two components employ the master slave architecture. HDFS is a distributed file system that can manage large volume of data. It's an open source version of GFS. HDFS consist of a namenode and multiple datanodes. The namenode stores metadata of the distributed file system, including permissions, disk quota, access time etc. To read or write a file, HDFS clients must consult the namenode first. The namenode returns location awared metadata about where to read or write a file. Datanodes are where data actually stored. They register to the namenode and periodicly send heartbeats and block reports to the namenode. Block reports contain information of the blocks that datanode possesses. Hadoop MapReduce is a programming model for large scale data processing. Jobs are submmited through the jobtracker which is the master. The jobtracker keeps track of all MapReduce jobs and assign map or reduce tasks to tasktrackers. Tasktrackers are slave nodes which execute map or reduce tasks. The jobtracker monitor status of tasktrackers through heartbeats sent by tasktrackers. If a tasktracker is down, the jobtracker will reschedule those tasks to other tasktrackers.
+Hadoop is a big data processing framwork inspired by GFS and MapReduce. It can scale out computation to many commodity machines. Hadoop is compose of Hadoop Distributed File System(HDFS) and Hadoop MapReduce. Both of the two components employ the master slave architecture. 
+
+HDFS is a distributed file system that can manage large volume of data. It's an open source version of GFS. HDFS consist of a namenode and multiple datanodes. The namenode stores metadata of the distributed file system, including permissions, disk quota, access time etc. To read or write a file, HDFS clients must consult the namenode first. The namenode returns location awared metadata about where to read or write a file. Datanodes are where data actually stored. They register to the namenode and periodicly send heartbeats and block reports to the namenode. Block reports contain information of the blocks that datanode possesses. 
+
+Hadoop MapReduce is a programming model for large scale data processing. Jobs are submmited through the jobtracker which is the master. The jobtracker keeps track of all MapReduce jobs and assign map or reduce tasks to tasktrackers. Tasktrackers are slave nodes which execute map or reduce tasks. The jobtracker monitor status of tasktrackers through heartbeats sent by tasktrackers. If a tasktracker is down, the jobtracker will reschedule those tasks to other tasktrackers.
 <ref>http://www.alexanderpokluda.ca/coursework/cs848/CS848%20Paper%20Presentation%20-%20Alexander%20Pokluda.pdf</ref>
 
 ## Kappa architecture and Lambda Architecture
@@ -99,37 +110,53 @@ Streaming data source is a submodule that can streamingly push data into our sys
 ## Streaming Message Queue
 Streaming message queue is one of the core building blocks of the system. It plays as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a kafka cluster composed by multiple brokers.
 
-There are many alternative databases or file systems like HDFS/MySQL for storing collected data. However, these storage alternatives are more suitable for batch processing than streaming processing. We prefer kafka for two reasons: First, we really don't care about data lost. According to the official statistics from twitter, the number of tweets sent per day is over 500 million.<ref>https://business.twitter.com/</ref> Loosing some of the messages will not affect our analysis much. So, at-most-once delivery semantics is sufficient for our case. Second, we really care about throughput and latency. Because cryptocurrecy market vary every seconds. MySQL is a traditional database that provides a rich set of transactionl operations. However, it's not suitable for storing large volume of data. Because it's not designed as a distributed database, and its throughput is limitted by a single machine. HDFS is a distributed file system that can provide high throughput. Multiple data blocks of the same file can be read from multiple data nodes parallelly. The blocks size of HDFS is usually larger than 64MB. This minimizes seek time of disk read head, and increase throughput. But the latency of HDFS is still at high level since it need to load data from disk for each read. 
+There are many alternative databases or file systems like HDFS/MySQL for storing collected data. However, these storage alternatives are more suitable for batch processing than streaming processing. We prefer kafka for two reasons: First, we really don't care about data lost. According to the official statistics from twitter, the number of tweets sent per day is over 500 million.<ref>https://business.twitter.com/</ref> Loosing some of the messages will not affect our analysis much. So, at-most-once delivery semantics is sufficient for our case. Second, we really care about throughput and latency. Because cryptocurrecy market vary every seconds. 
+
+MySQL is a traditional database that provides a rich set of transactionl operations. However, it's not suitable for storing large volume of data. Because it's not designed as a distributed database, and its throughput is limitted by a single machine. 
+
+HDFS is a distributed file system that can provide high throughput. Multiple data blocks of the same file can be read from multiple data nodes parallelly. The blocks size of HDFS is usually larger than 64MB. This minimizes seek time of disk read head, and increase throughput. But the latency of HDFS is still at high level since it need to load data from disk for each read. 
 
 Kafka is a better choice that provides both high throughput and low latency. Kafka is an open sourced distributed messaging system for dealing with logs. In kafka, a stream of messages is called a topic. Message producers can publish new messages to the topic. And message consumers can pull messages from a perticular topic. Brokers are intermediate exchange that store messages from producers and distribute them to consumers. <todo>Figurexxx shows the architecture of kafka</todo>
 
 ![kafka](fig/kafka.jpg)
 
-To maximize throughput, a topic is usually decomposed into multiple disjointed partitions. Thesee partitions are distributed among brokers that form the cluster. With this horizontally scalable architecture, multiple producers and consumers can operate on the same topic at the same time. Kafka also replica each partition to different brokers, this improves read throughput and prevents data lost. Additionally, kafka increase throughput by batching messages and sending asynchrounously. Batching messages amortize network traffic overhead like connection establishment. Sending messages asynchrounously could saturate network capacity instead of blocking by receivers. Kafka reduce latency by relying on page cache and zero-copy. In a typical publish-subscribe system, consumers is usually lagging producers a little bit. At this case, consumers read data from page cache directly without having to access disks. 
+To maximize throughput, a topic is usually decomposed into multiple disjointed partitions. Thesee partitions are distributed among brokers that form the cluster. With this horizontally scalable architecture, multiple producers and consumers can operate on the same topic at the same time. Kafka also replica each partition to different brokers, this improves read throughput and prevents data lost. Additionally, kafka increase throughput by batching messages and sending asynchrounously. Batching messages amortize network traffic overhead like connection establishment. Sending messages asynchrounously could saturate network capacity instead of blocking by receivers. 
+
+Kafka reduce latency by relying on page cache and zero-copy. In a typical publish-subscribe system, consumers is usually lagging producers a little bit. At this case, consumers read data from page cache directly without having to access disks. 
 
 Other message queues like ActiveMQ, RabbitMQ, RocketMQ and ZeroMQ can be a potential replacement for Kafka. Unlike kafka, a log based message queue, they implement multiple messaging protocols like STOMP, AMQP, MQTT etc. Due to limited space, we only make a comarison between Kafka and RabbitMQ. 
 
 ![rabbitmq](fig/rabbitmq.jpg)
 
-The main difference between the two is that kafka offers higher throughput and is much horizontaly scalable. While RabbitMQ supports priority messaging and consumer acks. Our system values high throughput and low latency, and we don't care whether consumers have received messages. Here is a more detailed comparison:
+The main difference between the two is that kafka offers higher throughput and is more horizontaly scalable. While RabbitMQ supports priority messaging and consumer acks. Our system values high throughput and low latency, and we don't care whether consumers have received messages. Here is a more detailed comparison:
 
 ![kafka_vs_rabbitmq](fig/kafka_vs_rabbitmq.jpg)
 
 ## Machine Learning Services
 
 ## Real-Time Data Analysis
-Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is apache flink. In previous sections, we have introduced some background of flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controling window, time and checkpointing. Spark is a direct competitor of flink in stream processing area. Comparing to spark streaming, flink offers more fine-grained control for windowing incoming data. In spark streaming, data are min-batched in processing time, and there is no option for batching in event-time. In the mean time, caculation of spark streaming is triggered globaly instead of operator by operator. While in flink, we can batch data in event time by specifying window assigner, and trigger caculation for each operator by setting its own trigger. <todo>in our system, why using flink is better</todo> In addition, flink provides lower latency than spark streaming, which is critical to our system. Our goal is to provide users with a system that can reveal the trend of cryptocurrencies timeliness. Flink can process incoming data in elementwise basis. While in spark streaming, it has to wait enough of data that can form a mini-batch, which increases latency. With the considerations above, we decided to use flink instead of spark streaming. 
+Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is apache flink. In previous sections, we have introduced some background of flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controling window, time and checkpointing. 
+
+Spark is a direct competitor of flink in stream processing area. Comparing to spark streaming, flink offers more fine-grained control for windowing incoming data. In spark streaming, data are min-batched in processing time, and there is no option for batching in event-time. In the mean time, caculation of spark streaming is triggered globaly instead of operator by operator. While in flink, we can batch data in event time by specifying window assigner, and trigger caculation for each operator by setting its own trigger. <todo>in our system, why using flink is better</todo> 
+
+In addition, flink provides lower latency than spark streaming, which is critical to our system. Our goal is to provide users with a system that can reveal the trend of cryptocurrencies timeliness. Flink can process incoming data in elementwise basis. While in spark streaming, it has to wait enough of data that can form a mini-batch, which increases latency. With the considerations above, we decided to use flink instead of spark streaming. 
 <todo>make a table comparison among flink, storm, spark, spark streaming</todo>
 
 ## Visualization
-Aggregated results from flink are then published to external datastore for visualization. The datastore we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a datastore that supports fast update. Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100,000 requests per second at a single node. Considering the flexibilites that redis offers, we decide to use redis as our result datastore. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
+Aggregated results from flink are then published to external datastore for visualization. The datastore we use is redis, an in-memory data storage server. The output of our system includes a word count set and a tuple with 3 elements. Typically, the word count set contains only thousands of records, since the number of vocabulary in common use is just 3000. We need to update the word count set frequently. So, we need a datastore that supports fast update. 
+
+Redis and memcached are potential candidates for the task. Memcached is a simple key-value in-memory store for small chunk objects. It's usually used as a distributed share memory and caching server. But memcached only support string data type. If you want some advanced functionalities, you must implement them by youself. Redis is a powerful key-value data structure server. It preserves data in main memory for later fast retrieval. By the way, redis also supports persistence of data in the form of binary(RDB) or append only log(AOF). When redis server is crushed, it can recover from latest RDB or AOF file. Redis supports multiple data types, including string, list, map, set, sorted set, bitmap and more. The speed of both memcached and redis are extremely fast, they can handle more than 100,000 requests per second at a single node. 
+
+Considering the flexibilites that redis offers, we decide to use redis as our result datastore. In our case, we use sorted set and string data type. String is for storing some running statistics and sorted set is for storing analysed results. We have a dashboard for displaying these results as well.
 
 # Experimental Evaluation
 In previous sections, we have presented the architectures of the rcas system. We have also demonstrated why we put kafka, flink and redis into our toolkit package. In this section, we conduct experiments on the system. All experiments were carried out on tencent cloud platform.
 
 ## Streaming Data Collection
 <ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
-We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter. <ref>https://www.omnicoreagency.com/twitter-statistics/#:~:text=Twitter%20Demographics&text=There%20are%20262%20million%20International,are%20on%20the%20platform%20daily.</ref> Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
+We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter. <ref>https://www.omnicoreagency.com/twitter-statistics/#:~:text=Twitter%20Demographics&text=There%20are%20262%20million%20International,are%20on%20the%20platform%20daily.</ref> 
+
+Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
 
 <todo>how many data did we collect</todo>
 For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out. Other unusual characters, emojis are also removed.
