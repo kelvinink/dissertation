@@ -20,36 +20,28 @@ Wang, Xue
 Since the creation of Bitcoin, cryptocurrencies are attracting significant attentions from researchers. They have been proposing many solutions for analysing the price trend. One dimension of these researches is to analyse the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement near real-time processing on Spark framework. However Spark is a framework dedicated for batch processing, which suffers from high latency. To minimize latency, Spark has implemented streaming API by applying micro-batch processing. But its performance in iterative or interactive applications is still unsatisfactory. In the area of capital market, the price fluctuation is very fast. Analytics and stakeholders are demanding a timely system that can assist their decision making. In this background, the demand for a truely real-time crypotocurrency analysation platform is rising rapidly. In this paper, we proposed a Flink-based cryptocurrency analyzation system that can handle massive amount of data in real-time. Streaming data is evaluated continuously and the result is updated in seconds, not days or months.
 
 # Introduction
-* Introduction of cryptocurrency
-* Introduction of social media(twitter, reddit)
-* Significance of the paper
-* technologies that we used, pros including fault tolerent, scalability, critical experiment result
+Cryptocurrency is a kind of digital asset that's decentralized and secured by strong crypotography algorithms. Satoshi Nakamoto (2009) created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records which is linked by hash function. Hash function ensures that non of the records can be modified without being caught by others.
 
-Cryptocurrency is a kind of digital asset that's decentralized and secured by strong crypotography algorithms. Satoshi Nakamoto created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records which is linked by hash function. Hash function ensures that non of the records can be modified without being caught by others. Since 2009, many other altcoins have been created. There are over 5000 altcoins in the cryptocurrency market till May 2020<ref>https://news.bitcoin.com/altcoins-why-over-5000/</ref>. The most famous altcoins include Ripple, Litecoin, Monero and more are created as a substitution for Bitcoin. These altcoins claim to offer better anonymity and faster transaction confirmation. However Bitcoin still take the lion share of the crypto market. On May 13, 2020, Bitcoin dominant 67.2% of the crypto market at the price $8893. Crypto market is highly fluctuated, over 30% of price fluctuation happens every day. So, investors need a timely price prediction system that can assit their decision making. 
+Since 2009, many other altcoins have been created. There are over 5000 altcoins in the cryptocurrency market till May 2020. Bitcoin and all of the altcoins are collectively called cryptocurrency. The most famous altcoins include Ripple, Litecoin, Monero and more are created as a substitution for Bitcoin. These altcoins claim to offer better anonymity and faster transaction confirmation. However Bitcoin still take the lion share of the crypto market. On May 13, 2020, Bitcoin dominant 67.2% of the crypto market at the price $8893 (coindesk,2020). 
 
-<todo>introduce some real-time attempts of cryptocurrency analysis</todo>
+Cryptocurrency market is highly fluctuated, over 30% of price fluctuation happens every day. The historical high of Bitcoin is $20089 on Dec 17 2017. After one year, the price decline to as low as $3245 on Dec 17 2018 (coindesk,2020). With this sharp volatility, investors need a price prediction system that can assit their decision making. 
 
-The Efficient Market Hypothesis states that current stock prices have reflected all the available information. And price variation is largely driven by incoming information. These new information broadcasts on social media like twitter and reddit rappidly. Researchers have devoted to find the correlation between public mood and stock price. One approach is to do sentiment analysis on tweets by applying machine learning algorithms. 
+The Efficient Market Hypothesis (Malkiel,2003) states that current stock prices have reflected all the available information. And price variation is largely driven by incoming information. These new information broadcasts on social media like twitter and reddit rappidly. Researchers have devoted to find the correlation between public mood and stock price. One approach is to do sentiment analysis on tweets by applying machine learning algorithms. 
 
-<todo>which is the first paper that do sentiment on social media to predict cryptocurrency price</todo>
+Baker & Wurgler(2007) defines 'sentiment' as the investor beliefs of investment return and risk in future. Sentiments reveal the correlation between investor attention and stock price. They proposed some potential proxies of sentiments, including news, investor surveys, trading volume etc. Da, Engelberg & Gao (2011) use Google Search Volume Index (SVI) as a sentiment proxy, whch is more timely than others. Mohapatra, Ahmed & Alencar (2019) tried to support real-time price prediction by using spark streaming framework. The system achieve high throughput but still suffer from high latency. Because spark streaming is not a native streaming framework, it implements streaming by mini-batching. In this paper, we will replace spark streaming with flink and implement a system that provide good balance between throughpt and latency.
 
-The rest of paper is structured as follows. Section 2 describes the background of large scale distributed frameworks and stream processing. Section 3 survey some related works that try to analyse cryptocurrency movement. Section 4 presents the architecture of our system. We will also illustrate reasons of software stack selcetion in this section. In section 5, we show some experimental results and detail implementation. Senction 6 discuss the pros and cons of the system and direction of future works. Then the paper is end with a conclusion in section 7.
+The rest of paper is structured as follows. Section 2 describes the background of large scale distributed computation frameworks and stream processing. Section 3 survey some related works that try to analyse cryptocurrency movement. Section 4 presents the architecture of our system. We will also illustrate reasons of software stack selcetion in this section. In section 5, we show some experimental results and detail implementation. Senction 6 discuss the pros and cons of the system and direction of future works. Then the paper end with a conclusion in section 7.
 
-# Background（凑字数的)
-<todo>* History of big data</todo>
-
+# Background
 ## Traditional ETL and Business Intelligence
 For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore.
 
-However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC<ref>https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</ref>the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. 
+However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC, the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. 
 
 Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 
 ## MapReduce
-<ref>https://dl.gi.de/bitstream/handle/20.500.12116/20456/327.pdf?sequence=1</ref>
-<ref>https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html</ref>
-
-<ref>who proposed mapreduce</ref>MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. 
+MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. 
 
 MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, so that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. 
 
@@ -58,7 +50,7 @@ MapReduce is a highly scalable programming model that can distribute data and co
 To take the advantage of locality, MapReduce schedule map tasks to machines that are near to the input data. This is opposite to traditional ETL, which pulls all needed data from data warehouse to the execution machine. MapReduce makes the decision based on the fact that data size is usually far more larger than map tasks code size.
 
 ## Hadoop
-Hadoop is a big data processing framwork inspired by GFS and MapReduce. It can scale out computation to many commodity machines. Hadoop is compose of Hadoop Distributed File System(HDFS) and Hadoop MapReduce. Both of the two components employ the master slave architecture. 
+Hadoop (Shvachko, Kuang, Radia, & Chansler 2010) is a big data processing framwork inspired by GFS and MapReduce. It can scale out computation to many commodity machines. Hadoop is compose of Hadoop Distributed File System(HDFS) and Hadoop MapReduce. Both of the two components employ the master slave architecture. 
 
 HDFS is a distributed file system that can manage large volume of data. It's an open source version of GFS. HDFS consist of a namenode and multiple datanodes. The namenode stores metadata of the distributed file system, including permissions, disk quota, access time etc. To read or write a file, HDFS clients must consult the namenode first. The namenode returns location awared metadata about where to read or write a file. Datanodes are where data actually stored. They register to the namenode and periodicly send heartbeats and block reports to the namenode. Block reports contain information of the blocks that datanode possesses. 
 
@@ -102,7 +94,7 @@ Rcas is a system aims at providing cryptocurrency investors some insights by app
 
 ![rcas system architecture](fig/RCAS.png)
 
-The overall architecture of RCAS system is shown in Figure 1. The system consist of five subsystems. (1) a streaming data source that collect data from Twitter streaming API; (2) a streaming message queue that stores and distribute data collected from data source; (3) a machine learning service that provides sentiment analysis services; (4) a streaming data analysis subsystem that can analyse data in distributed cluster; (5) a visualization module for displaying results. Our system runs and benchmarks on public cloud. To enable fast deployment, each of the components runs as docker container. In the following sections, we will introduce these subsystems one by one.
+The overall architecture of RCAS system is shown in Figure 1. The system consist of five subsystems. (1) a streaming data source that collect data from Twitter streaming API; (2) a streaming message queue that stores and distribute data collected from data source; (3) a machine learning service that provides sentiment analysis services; (4) a streaming data analysis subsystem that can analyse data in distributed cluster; (5) a visualization module for displaying results. Our system runs and benchmarks on public cloud. To enable fast deployment, each of the subsystems runs as docker container. In the following sections, we will introduce these subsystems one by one.
 
 ## Streaming Data Source
 Streaming data source is a submodule that can streamingly push data into our system. It collects cryptocurrency related data from social media or any other channel. And performs some filtering that removes corrupted data. Then publishes them to the streaming message queue. Any social media platform are fine, such as twitter, reddit and facbook etc. The only difference is that the more diversify demogrphics is the platform the better result we will get.
@@ -120,7 +112,7 @@ Kafka is a better choice that provides both high throughput and low latency. Kaf
 
 ![kafka](fig/kafka.jpg)
 
-To maximize throughput, a topic is usually decomposed into multiple disjointed partitions. Thesee partitions are distributed among brokers that form the cluster. With this horizontally scalable architecture, multiple producers and consumers can operate on the same topic at the same time. Kafka also replica each partition to different brokers, this improves read throughput and prevents data lost. Additionally, kafka increase throughput by batching messages and sending asynchrounously. Batching messages amortize network traffic overhead like connection establishment. Sending messages asynchrounously could saturate network capacity instead of blocking by receivers. 
+To maximize throughput, a topic of kafka is usually decomposed into multiple disjointed partitions. Thesee partitions are distributed among brokers that form the cluster. With this horizontally scalable architecture, multiple producers and consumers can operate on the same topic at the same time. Kafka also replica each partition to different brokers, this improves read throughput and prevents data lost. Additionally, kafka increase throughput by batching messages and sending asynchrounously. Batching messages amortize network traffic overhead like connection establishment. Sending messages asynchrounously could saturate network capacity instead of blocking by receivers. 
 
 Kafka reduce latency by relying on page cache and zero-copy. In a typical publish-subscribe system, consumers is usually lagging producers a little bit. At this case, consumers read data from page cache directly without having to access disks. 
 
@@ -243,9 +235,26 @@ We monitor the performance of our system by inspecting the number of messages it
 The system can process around <todo>xxx</todo> messages per second. The number of comments about cryptocurrency generated by twitter is around <todo>xxx</todo> each day. Using our system, you can handle that volumn of data without pressure. With the redis datastore, you can also serve more than 100,000 clients at the same time.
 
 # Discussion
-Our system only used several attributes of each tweets. In future, we plan to extend the system to analysis more attributes of tweets. This will give our users a broader overview to current status of cryptocurrencyies. Currently, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements. Our system is highly extendable, 
+Our system is highly extendable, it's easy to integrate other social media source like reddit, facebook etc. Users of our system only need to update data extraction logic and redeploy the system.
+
+Our system still has much room for improvements. First, We only used several features of each tweets. In future, we plan to extend the system to analysis more attributes of tweets. This will give our users a broader overview to current status of cryptocurrencyies. 
+
+Second, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
+
+Third, other sentiment indicators can be introduced into system. Currently, we only got two descriptive indicators. More quantitive indicators can be measured and improve the predicting result by combining them together according to weight.
 
 # Conclusion
 In this paper, we presented a cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And introduced some pros and cons of using batch processing systems. Then, we illustrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: storm, spark streaming and flink. We concluded that flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world.
 
 # References
+Coindesk, (2020). https://www.coindesk.com/
+Nakamoto, S. (2019). Bitcoin: A peer-to-peer electronic cash system. Manubot.
+Malkiel, B. G. (2003). The efficient market hypothesis and its critics. Journal of economic perspectives, 17(1), 59-82.
+Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. The Journal of Finance, 66(5), 1461-1499.
+Baker, M., & Wurgler, J. (2007). Investor sentiment in the stock market. Journal of economic perspectives, 21(2), 129-152.
+Mohapatra, S., Ahmed, N., & Alencar, P. (2019, December). KryptoOracle: A Real-Time Cryptocurrency Price Prediction Platform Using Twitter Sentiments. In 2019 IEEE International Conference on Big Data (Big Data) (pp. 5544-5551). IEEE.
+Shvachko, K., Kuang, H., Radia, S., & Chansler, R. (2010, May). The hadoop distributed file system. In 2010 IEEE 26th symposium on mass storage systems and technologies (MSST) (pp. 1-10). Ieee.
+
+IDC (2017). The Digitization of the World From Edge to Core. https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf
+
+Bukovina, J., Martiček, M., (2016). Sentiment and Bitcoin volatility. MENDELU Working Papers in Business and Economics 58/2016. Mendel University in Brno.
