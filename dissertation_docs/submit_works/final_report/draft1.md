@@ -55,24 +55,23 @@ Hadoop (Shvachko, Kuang, Radia, & Chansler 2010) is a big data processing framwo
 HDFS is a distributed file system that can manage large volume of data. It's an open source version of GFS. HDFS consist of a namenode and multiple datanodes. The namenode stores metadata of the distributed file system, including permissions, disk quota, access time etc. To read or write a file, HDFS clients must consult the namenode first. The namenode returns location awared metadata about where to read or write a file. Datanodes are where data actually stored. They register to the namenode and periodicly send heartbeats and block reports to the namenode. Block reports contain information of the blocks that datanode possesses. 
 
 Hadoop MapReduce is a programming model for large scale data processing. Jobs are submmited through the jobtracker which is the master. The jobtracker keeps track of all MapReduce jobs and assign map or reduce tasks to tasktrackers. Tasktrackers are slave nodes which execute map or reduce tasks. The jobtracker monitor status of tasktrackers through heartbeats sent by tasktrackers. If a tasktracker is down, the jobtracker will reschedule those tasks to other tasktrackers.
-<ref>http://www.alexanderpokluda.ca/coursework/cs848/CS848%20Paper%20Presentation%20-%20Alexander%20Pokluda.pdf</ref>
 
 ## Kappa architecture and Lambda Architecture
 To accomodate the need for both high throughput and low latency, Marz & Warren(2015) proposed a mixed architecture: lambda architecture. Lambda architecture is a data processing paradigm that is capable of dealing with massive amount of data. It mixes both batch and stream processing methods. Lambda architecture is compose of batch layer and speed layer. The batch layer is focus on increasing the accuracy by taking account into all available data. The result produced by batch layer is equivalent to equation "query result = f(all data)". Where f is the processing logic for the data. The speed layer is focus on providing immediate view to the new incoming data. Query from clients are answered through the serving layer, which merges result from both batch layer and speed layer.
 
 <todo>![lambda architecture](fig/ref_lambda_arch.png)</todo>
 
-Kappa architecture is a simplified architecture with batch processing system removed. It's proposed by Jay Kreps on O'Reilly blog in 2014. The architecture enables analytics do data processing with a single technology stack. In kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately. All 
+Kappa architecture is a simplified architecture with batch processing system removed. It's proposed by Jay Kreps on O'Reilly blog in 2014. The architecture enables analytics do data processing with a single technology stack. In kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately. Kappa unified batch and stream processing by treating batch processing as special stream processing.
 
 <todo>![kappa architecture](fig/ref_kappa_arch.png)</todo>
 
 ## Spark
-Hadoop has been a successful big data processing framework for years before the come up of spark. Spark is a cluster big data framework that supports in-memory computing. <todo>which paper propose spark, and what problem does it solve</todo> The main contribution of spark is that it introuduce the RDD data model into big data analysis area. This increase efficiency in processing interactive and iterative jobs. Hadoop MapReduce is not designed to reuse imtermidiate results. To reuse these results, we have to save them back to HDFS and reload them into memory at next iteration of MapReduce. This incurs performance penalty due to disk IO.  Spark minimizes the overhead by introducing in the resilient distributed datasets (RDD). A RDD is a collection of read only records that are partitioned across many machines. A RDD is created from external storage or other RDDs by the transformation operation. It can be explicitly cached in memory for resuse by multiple MapReduce tasks. To reuse a RDD in the future, users can persistent it to external storage. Fault tolerance of RDD is achieved by recording the lineage of the RDD. Lineages include information about how the RDD is drived from other RDDs. A RDD can be rebuilt if it's lost or crushed. <todo>Spark’s architecture consists of a Driver Program, a Cluster Manager and Worker Nodes</todo> <todo>spark stream and micro-batch streaming</todo>
+Hadoop has been a successful big data processing framework for years before the come up of spark. Spark (Zaharia, Chowdhury, Franklin, Shenker,& Stoica, 2010) is a cluster big data framework that supports in-memory computing. The main contribution of spark is that it introuduce the RDD data model into big data analysis area. This increase efficiency in processing interactive and iterative jobs. Hadoop MapReduce is not designed to reuse imtermidiate results. To reuse these results, we have to save them back to HDFS and reload them into memory at next iteration of MapReduce. This incurs performance penalty due to disk IO.  Spark minimizes the overhead by introducing in the resilient distributed datasets (RDD). A RDD is a collection of read only records that are partitioned across many machines. A RDD is created from external storage or other RDDs by the transformation operation. It can be explicitly cached in memory for resuse by multiple MapReduce tasks. To reuse a RDD in the future, users can persistent it to external storage. Fault tolerance of RDD is achieved by recording the lineage of the RDD. Lineages include information about how the RDD is drived from other RDDs. A RDD can be rebuilt if it's lost or crushed. <todo>Spark’s architecture consists of a Driver Program, a Cluster Manager and Worker Nodes</todo> <todo>spark stream and micro-batch streaming</todo>
 
 ## Flink
-Apache flink is a distributed stateful stream processing framework. It is based on kappa architecture which unifies stream and batch data processing. Flink can be used in many different senarios. Many applications in mega companies are powered by flink. <ref>https://flink.apache.org/poweredby.html</ref>For example, Alibaba's Blink is a flink based search engine. Tencent's Oceanus is a real-time stream processing platform that takes the advantages of apache flink. Kinesis, a stream service on AWS cloud is another famous platform powered by flink. 
-
-<ref>Giselle van Dongen and Dirk Van den Poel benchmarks flink and spark streaming.</ref> The benchmark shows that flink outform spark streaming in two aspect. One is that flink processes streaming data with the lowest latency. The other is that flink provides better balance between latency and throughput. Because it supports more flexible windowing and time semantics. Flink employ the master slave structure, where jobmanager is the master and taskmanagers are the slaves. Jobmanager is responsible for scheduling tasks and coordinating checkpoints and recovery. Taskmanagers consist multiple task slots, which can execute task operators. Taskmanagers periodically report their status to the jobmanager by sending heartbeats.
+Apache flink (Carbone, Katsifodimos, Ewen,  Markl, Haridi & Tzoumas, 2015) is a distributed stateful stream processing framework. It is based on kappa architecture which unifies stream and batch data processing. Flink can be used in many different senarios. Many applications in mega companies are powered by flink. For example, Alibaba's Blink is a flink based search engine. Tencent's Oceanus is a real-time stream processing platform that takes the advantages of apache flink. Kinesis, a stream service on AWS cloud is another famous platform powered by flink. 
+ 
+A benchmark done by Dongen, Steurtewagen, & Van(2018) shows that flink outform spark streaming in two aspect. One is that flink processes streaming data with the lowest latency. The other is that flink provides better balance between latency and throughput. Because it supports more flexible windowing and time semantics. Flink employ the master slave structure, where jobmanager is the master and taskmanagers are the slaves. Jobmanager is responsible for scheduling tasks and coordinating checkpoints and recovery. Taskmanagers consist multiple task slots, which can execute task operators. Taskmanagers periodically report their status to the jobmanager by sending heartbeats.
 
 There are five basic building blocks that compose flink: stream, state, time, window and checkpoint.
 
@@ -85,7 +84,6 @@ Time management is also critical for stream processing. Flink offers flexible no
 Transformation operators can keep states like counter, machine learning model or intermediate aggregation result. States are key-value store embeded in stateful operators. Since states can be accessed locally, flink applications achieve high throughput and low latency. Flink offers exactly-once state consistency by regularly checkpointing operator states to external storage. Flink employs light weight Chandy-Lamport algorithm for asynchronous distributed checkpointing. The algorithm allows checkpointing without halting the execution of tasks. So, checkpoint and normal task execution can run in parallel. 
 
 There are many options for flink cluster deployment. Your may deploy it as a standalone cluster or on resource management platforms like YARN, Mesos, Kubernetes etc.
-<ref>https://flink.apache.org/flink-applications.html</ref>
 
 # Related Works
 
@@ -102,7 +100,7 @@ Streaming data source is a submodule that can streamingly push data into our sys
 ## Streaming Message Queue
 Streaming message queue is one of the core building blocks of the system. It plays as a message broker that collect and distribute immediate results. All of the data collected from data source phase are pushed to the streaming message queue. The message queue is a kafka cluster composed by multiple brokers.
 
-There are many alternative databases or file systems like HDFS/MySQL for storing collected data. However, these storage alternatives are more suitable for batch processing than streaming processing. We prefer kafka for two reasons: First, we really don't care about data lost. According to the official statistics from twitter, the number of tweets sent per day is over 500 million.<ref>https://business.twitter.com/</ref> Loosing some of the messages will not affect our analysis much. So, at-most-once delivery semantics is sufficient for our case. Second, we really care about throughput and latency. Because cryptocurrecy market vary every seconds. 
+There are many alternative databases or file systems like HDFS/MySQL for storing collected data. However, these storage alternatives are more suitable for batch processing than streaming processing. We prefer kafka for two reasons: First, we really don't care about data lost. According to the official statistics from twitter, the number of tweets sent per day is over 500 million. Loosing some of the messages will not affect our analysis much. So, at-most-once delivery semantics is sufficient for our case. Second, we really care about throughput and latency. Because cryptocurrecy market vary every seconds. 
 
 MySQL is a traditional database that provides a rich set of transactionl operations. However, it's not suitable for storing large volume of data. Because it's not designed as a distributed database, and its throughput is limitted by a single machine. 
 
@@ -145,10 +143,10 @@ Considering the flexibilites that redis offers, we decide to use redis as our re
 In previous sections, we have presented the architectures of the rcas system. We have also demonstrated why we put kafka, flink and redis into our toolkit package. In this section, we conduct experiments on the system. All experiments were carried out on tencent cloud platform.
 
 ## Streaming Data Collection
-<ref>https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter</ref>
-We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter. <ref>https://www.omnicoreagency.com/twitter-statistics/#:~:text=Twitter%20Demographics&text=There%20are%20262%20million%20International,are%20on%20the%20platform%20daily.</ref> 
 
-Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window. To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
+We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter (Omnicore).
+
+Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window (Twitter Streaming API). To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
 
 <todo>how many data did we collect</todo>
 For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out. Other unusual characters, emojis are also removed.
@@ -247,7 +245,7 @@ Third, other sentiment indicators can be introduced into system. Currently, we o
 In this paper, we presented a cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And introduced some pros and cons of using batch processing systems. Then, we illustrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: storm, spark streaming and flink. We concluded that flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world.
 
 # References
-Coindesk, (2020). https://www.coindesk.com/
+Coindesk, (2020). URL: https://www.coindesk.com/
 
 Nakamoto, S. (2019). Bitcoin: A peer-to-peer electronic cash system. Manubot.
 
@@ -263,7 +261,7 @@ Mohapatra, S., Ahmed, N., & Alencar, P. (2019, December). KryptoOracle: A Real-T
 
 Shvachko, K., Kuang, H., Radia, S., & Chansler, R. (2010, May). The hadoop distributed file system. In 2010 IEEE 26th symposium on mass storage systems and technologies (MSST) (pp. 1-10). IEEE.
 
-IDC. (2017). The Digitization of the World From Edge to Core. https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf
+IDC. (2017). The Digitization of the World From Edge to Core. URL: https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf
 
 Denney, M. J., Long, D. M., Armistead, M. G., Anderson, J. L., & Conway, B. N. (2016). Validating the extract, transform, load process used to populate a large clinical research database. International journal of medical informatics, 94, 271-274.
 
@@ -271,4 +269,18 @@ Dean, J., & Ghemawat, S. (2004). MapReduce: Simplified data processing on large 
 
 Marz, N., & Warren, J. (2015). Big Data: Principles and best practices of scalable real-time data systems. New York; Manning Publications Co..
 
-Jay Kreps. (2014). Questioning the Lambda Architecture. https://www.oreilly.com/radar/questioning-the-lambda-architecture
+Jay Kreps. (2014). Questioning the Lambda Architecture. URL: https://www.oreilly.com/radar/questioning-the-lambda-architecture
+
+Zaharia, M., Chowdhury, M., Franklin, M. J., Shenker, S., & Stoica, I. (2010). Spark: Cluster computing with working sets. HotCloud, 10(10-10), 95.
+
+van Dongen, G., Steurtewagen, B., & Van den Poel, D. (2018, July). Latency measurement of fine-grained operations in benchmarking distributed stream processing frameworks. In 2018 IEEE International Congress on Big Data (BigData Congress) (pp. 247-250). IEEE.
+
+Carbone, P., Katsifodimos, A., Ewen, S., Markl, V., Haridi, S., & Tzoumas, K. (2015). Apache flink: Stream and batch processing in a single engine. Bulletin of the IEEE Computer Society Technical Committee on Data Engineering, 36(4).
+
+Apache Flink Documentation. URL: https://ci.apache.org/projects/flink/flink-docs-stable/
+
+Tweepy Documentation. URL: http://docs.tweepy.org/en/latest/
+
+Twitter Streaming API. URL: https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter
+
+Omnicore. URL: https://www.omnicoreagency.com/twitter-statistics/#:~:text=Twitter%20Demographics&text=There%20are%20262%20million%20International,are%20on%20the%20platform%20daily.
