@@ -28,20 +28,20 @@ Cryptocurrency market is highly fluctuated, over 30% of price fluctuation happen
 
 The Efficient Market Hypothesis (Malkiel,2003) states that current stock prices have reflected all the available information. And price variation is largely driven by incoming information. These new information broadcasts on social media like twitter and reddit rappidly. Researchers have devoted to find the correlation between public mood and stock price. One approach is to do sentiment analysis on tweets by applying machine learning algorithms. 
 
-Baker & Wurgler(2007) defines 'sentiment' as the investor beliefs of investment return and risk in future. Sentiments reveal the correlation between investor attention and stock price. They proposed some potential proxies of sentiments, including news, investor surveys, trading volume etc. Da, Engelberg & Gao (2011) use Google Search Volume Index (SVI) as a sentiment proxy, whch is more timely than others. Mohapatra, Ahmed & Alencar (2019) tried to support real-time price prediction by using spark streaming framework. The system achieve high throughput but still suffer from high latency. Because spark streaming is not a native streaming framework, it implements streaming by mini-batching. In this paper, we will replace spark streaming with flink and implement a system that provide good balance between throughpt and latency.
+Baker & Wurgler(2007) defines 'sentiment' as the investor beliefs of investment return and risk in future. Sentiments reveal the correlation between investor attention and stock price. They proposed several potential proxies of sentiments, including news, investor surveys, trading volume etc. These sentiment proxies usually lag behind current status for days. Da, Engelberg & Gao (2011) use Google Search Volume Index (SVI) as a sentiment proxy, whch is more timely than the others. But it's based on google search volume, instead of text analysis. Colianni, Rosales & Signorotti (2015) inspect how tweet sentiment result could impact investment strategies. They applied basic machine learning algorithms on collected tweets, and yield 90% accuracy. Mohapatra, Ahmed & Alencar (2019) move a step forward to support real-time price prediction by using spark streaming framework. The system achieve high throughput but still suffer from high latency. Because spark streaming is not a native streaming framework, it implements streaming by mini-batching. In this paper, we will replace spark streaming with flink and implement a system that provides well balance between throughpt and latency. Previous researches have done so well on sentiment analysis, and the existing models provide good enough accuracy. The main objective of this paper is not to invent or enhance sentiment models but to build a system that can use existing models and provide real-time result.
 
 The rest of paper is structured as follows. Section 2 describes the background of large scale distributed computation frameworks and stream processing. Section 3 survey some related works that try to analyse cryptocurrency movement. Section 4 presents the architecture of our system. We will also illustrate reasons of software stack selcetion in this section. In section 5, we show some experimental results and detail implementation. Senction 6 discuss the pros and cons of the system and direction of future works. Then the paper end with a conclusion in section 7.
 
 # Background
 ## Traditional ETL and Business Intelligence
-For many years, ETL (Extract, Transform and Load) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore.
+For many years, ETL (Extract, Transform and Load) (Denney, Long, Armistead, Anderson & Conway, 2016)) is the mainstrem procedure for business intelligence and data analysis. The objective of ETL is to extract data from source system, apply some transformation, and finally load into target datastore.
 
-However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC, the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data. 
+However traditional ETL systems are limited by their scalability and fault tolerent ability. According to a report presented in 2017 by IDC, the global data volume will grow expronentially from 33 zettabytes in 2018 to 175 zettabytes by 2025. IDC also forecasts that we will have 150 billions devices connected globally by 2025. And real-time data will account for around 30 percents of the global data (IDC, 2017). 
 
 Traditional ETL can't process this huge volume of data in acceptable time. We demand for a system that's able to distribute computations to thousands of machines and runs parallely.
 
 ## MapReduce
-MapReduce is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. 
+MapReduce (Dean & Ghemawat, 2004) is a programming model that is able to process vast amounts of datasets in parallel. It's inspired by the map and reduce operation in functional languages like Lisp. 
 
 MapReduce is compose of three core operations: map, shuffle and reduce. A job is usually splited into multiple independent subtasks and run parallely on the map stage. Then the outputed data from map stage is shuffled by its key, so that data with the same key occurence on the same workder node. Finally, reducers start processing each group of data in parellel. 
 
@@ -58,11 +58,11 @@ Hadoop MapReduce is a programming model for large scale data processing. Jobs ar
 <ref>http://www.alexanderpokluda.ca/coursework/cs848/CS848%20Paper%20Presentation%20-%20Alexander%20Pokluda.pdf</ref>
 
 ## Kappa architecture and Lambda Architecture
-To accomodate the need for both high throughput and low latency, <ref>(N. Marz and J. Warren. Big data: principles and best practices of scalable real-time data systems. Manning, 2013.)</ref> proposed a mixed architecture: lambda architecture. Lambda architecture is a data processing paradigm that is capable of dealing with massive amount of data. It mixes both batch and stream processing methods. Lambda architecture is compose of batch layer and speed layer. The batch layer is focus on increasing the accuracy by taking account into all available data. The result produced by batch layer is equivalent to equation "query result = f(all data)". Where f is the processing logic for the data. The speed layer is focus on providing immediate view to the new incoming data. Query from clients are answered through the serving layer, which merges result from both batch layer and speed layer.
+To accomodate the need for both high throughput and low latency, Marz & Warren(2015) proposed a mixed architecture: lambda architecture. Lambda architecture is a data processing paradigm that is capable of dealing with massive amount of data. It mixes both batch and stream processing methods. Lambda architecture is compose of batch layer and speed layer. The batch layer is focus on increasing the accuracy by taking account into all available data. The result produced by batch layer is equivalent to equation "query result = f(all data)". Where f is the processing logic for the data. The speed layer is focus on providing immediate view to the new incoming data. Query from clients are answered through the serving layer, which merges result from both batch layer and speed layer.
 
 <todo>![lambda architecture](fig/ref_lambda_arch.png)</todo>
 
-Kappa architecture is a simplified architecture with batch processing system removed. <ref>It's proposed by Jay Kreps https://www.oreilly.com/radar/questioning-the-lambda-architecture/</ref>It enable analytics to do data processing with a single technology stack. In kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately.
+Kappa architecture is a simplified architecture with batch processing system removed. It's proposed by Jay Kreps on O'Reilly blog in 2014. The architecture enables analytics do data processing with a single technology stack. In kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately. All 
 
 <todo>![kappa architecture](fig/ref_kappa_arch.png)</todo>
 
@@ -248,13 +248,27 @@ In this paper, we presented a cryptocurrency price analysis system that supports
 
 # References
 Coindesk, (2020). https://www.coindesk.com/
+
 Nakamoto, S. (2019). Bitcoin: A peer-to-peer electronic cash system. Manubot.
+
 Malkiel, B. G. (2003). The efficient market hypothesis and its critics. Journal of economic perspectives, 17(1), 59-82.
+
 Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. The Journal of Finance, 66(5), 1461-1499.
+
 Baker, M., & Wurgler, J. (2007). Investor sentiment in the stock market. Journal of economic perspectives, 21(2), 129-152.
+
+Colianni, S., Rosales, S., & Signorotti, M. (2015). Algorithmic trading of cryptocurrency based on Twitter sentiment analysis. CS229 Project, 1-5.
+
 Mohapatra, S., Ahmed, N., & Alencar, P. (2019, December). KryptoOracle: A Real-Time Cryptocurrency Price Prediction Platform Using Twitter Sentiments. In 2019 IEEE International Conference on Big Data (Big Data) (pp. 5544-5551). IEEE.
-Shvachko, K., Kuang, H., Radia, S., & Chansler, R. (2010, May). The hadoop distributed file system. In 2010 IEEE 26th symposium on mass storage systems and technologies (MSST) (pp. 1-10). Ieee.
 
-IDC (2017). The Digitization of the World From Edge to Core. https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf
+Shvachko, K., Kuang, H., Radia, S., & Chansler, R. (2010, May). The hadoop distributed file system. In 2010 IEEE 26th symposium on mass storage systems and technologies (MSST) (pp. 1-10). IEEE.
 
-Bukovina, J., Martiček, M., (2016). Sentiment and Bitcoin volatility. MENDELU Working Papers in Business and Economics 58/2016. Mendel University in Brno.
+IDC. (2017). The Digitization of the World From Edge to Core. https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf
+
+Denney, M. J., Long, D. M., Armistead, M. G., Anderson, J. L., & Conway, B. N. (2016). Validating the extract, transform, load process used to populate a large clinical research database. International journal of medical informatics, 94, 271-274.
+
+Dean, J., & Ghemawat, S. (2004). MapReduce: Simplified data processing on large clus
+
+Marz, N., & Warren, J. (2015). Big Data: Principles and best practices of scalable real-time data systems. New York; Manning Publications Co..
+
+Jay Kreps. (2014). Questioning the Lambda Architecture. https://www.oreilly.com/radar/questioning-the-lambda-architecture
