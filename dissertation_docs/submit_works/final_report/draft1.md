@@ -142,17 +142,22 @@ Considering the flexibilites that redis offers, we decide to use redis as our re
 # Experimental Evaluation
 In previous sections, we have presented the architectures of the rcas system. We have also demonstrated why we put kafka, flink and redis into our toolkit package. In this section, we conduct experiments on the system. All experiments were carried out on tencent cloud platform.
 
-## Streaming Data Collection
+## System Deployment
+<todo>Figurexxx shows the deployment specification of our system.</todo> The system is composed of 8 CVM(Cloud Virtual Machine) instance represented by cuboid. We have one flink master running the flink jobmanager, and 3 flink slaves running the taskmanager. Each taskmanager is managing 8 task slots with 12GB of RAM allocated in total. So, the flink manager is actually managing 32 task slots. The redis server is deployed on the same CVM instance as the flink master. This doesn't degrade the performance much for the flink master. Because it only need to manage 3 CVM instances. We also got 3 virtual instances for machine learning services. Each of the instance has 8 sentiment analysis servers (multiprocesses) running in parallel. To distribute workload evenly, we set up a nginx load balance server for dispatching incoming requestes to the underlying sentiment analysis servers. Flink cluster and machine learning cluster are computation intensive. We choose the 'CN3.2XLARGE16' instance type after considering budget and performance.
 
-We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter (Omnicore).
+Here is the configuration 'CN3.2XLARGE16' of instance:
 
-Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window (Twitter Streaming API). To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
+Components    Specifications
+-------------------------
+Instance Type CN3.2XLARGE16
+CPU           Intel Xeon Skylake 6146(3.2 GHz)
+#vCores       8
+RAM           16GB
+Network       6Gbps
+OS            Ubuntu:4.15.0-54-generic
+Hard Disk     1×50GB
 
-<todo>how many data did we collect</todo>
-For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out. Other unusual characters, emojis are also removed.
-
-## Kafka Cluster
-In our system, we have 16 kafka broker. They are running on the same machine with 16 CPU cores, each topic are decomposed into 16 partitions. For each partition, there exists only one replica. Because data reliability is insignificant for our system. We have created two topics: one for collecting data from twitter streaming API, the other is for storing messages which has been processed by our machine learning service. The configurations of kafka cluster machine are shown below:
+We have one CVM instance for kafka message queue. Instance type 'IT3.4XLARGE64' is very suitable to run kafka brokers. It has 64GB memory and 16 vCPU corse. We can simulate a 16 broker cluster with only one machine. The configurations of 'IT3.4XLARGE64' are shown below:
 
 <todo>should in table form</todo>
 Components    Specifications
@@ -165,22 +170,21 @@ Network       6Gbps
 OS            Ubuntu:4.15.0-54-generic
 Hard Disk     1×3720GB NVMe SSD
 
+## Streaming Data Collection
+We collect real-time data from the twitter API. There are many other media platforms for data collection, like facebook, reddit etc. We choose twitter for the reason that it has the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter (Omnicore).
+
+Twitter provide a streaming API that returns tweets containing a set of keywords. The keywords we uses include #croptocurrency, #bitcoin and #ethereum etc. However there is rate limit for free API users. We can only initiate no more than 450 requests in 15 minutes window (Twitter Streaming API). To address this issue, we collect data in advance. We use the tweepy:3.8.0 library for developing the streaming data source module. Tweepy is a python library that wraps many functionalities of twitter streaming API. It enables fast development of twitter applications.
+
+<todo>how many data did we collect</todo>
+For each tweet, we extract information like tweet ID, create time, quote count, reply count, retweet count, favorite count, language, comment text. For the reason that our sentiment analysis model can only handle english sentences, tweets written in language other than english are filtered out. Other unusual characters, emojis are also removed.
+
+## Kafka Cluster
+In our system, we have 16 kafka broker. They are running on the same machine with 16 CPU cores, each topic are decomposed into 16 partitions. For each partition, there exists only one replica. Because data reliability is insignificant for our system. We have created two topics: one for collecting data from twitter streaming API, the other is for storing messages which has been processed by our machine learning service. 
+
 ## Sentiment Analysis
 
 ## Data Aggregation
-We run aggregation subsystem on a flink standalone cluster with four tencent 'CN3.2XLARGE16' CVM nodes. Here is the configuration for each node:
-
-Components    Specifications
--------------------------
-Instance Type CN3.2XLARGE16
-CPU           Intel Xeon Skylake 6146(3.2 GHz)
-#vCores       8
-RAM           16GB
-Network       6Gbps
-OS            Ubuntu:4.15.0-54-generic
-Hard Disk     1×50GB
-
-One of the four nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12,000MB memory and 8 task slots.
+As mentioned in system deployment section, we run aggregation subsystem on a flink standalone cluster with four tencent 'CN3.2XLARGE16' CVM nodes. One of the four nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12GB memory and 8 task slots.
 
 Data returned from sentiment analysis includes the following fields:
 
@@ -233,16 +237,16 @@ We monitor the performance of our system by inspecting the number of messages it
 The system can process around <todo>xxx</todo> messages per second. The number of comments about cryptocurrency generated by twitter is around <todo>xxx</todo> each day. Using our system, you can handle that volumn of data without pressure. With the redis datastore, you can also serve more than 100,000 clients at the same time.
 
 # Discussion
-Our system is highly extendable, it's easy to integrate other social media source like reddit, facebook etc. Users of our system only need to update data extraction logic and redeploy the system.
+In this section, we are going to present some of the future works that can be done to the current system. Our system is highly extendable, it's easy to integrate other social media source like reddit, facebook etc. It requires minimal changes to the data extraction logic and redeploy the program. Users can push data that they collected from other media to the kafka cluster. Then they need to define the structure of these data and extract texts for sentiment analysis. 
 
-Our system still has much room for improvements. First, We only used several features of each tweets. In future, we plan to extend the system to analysis more attributes of tweets. This will give our users a broader overview to current status of cryptocurrencyies. 
+Our system still has much room for improvements. First, We only used several features of each tweets. In future, we plan to extend the system to include more features of tweets. This will give our users a broader overview to current status of cryptocurrencyies. 
 
 Second, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
 
 Third, other sentiment indicators can be introduced into system. Currently, we only got two descriptive indicators. More quantitive indicators can be measured and improve the predicting result by combining them together according to weight.
 
 # Conclusion
-In this paper, we presented a cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And introduced some pros and cons of using batch processing systems. Then, we illustrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: storm, spark streaming and flink. We concluded that flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world.
+In this paper, we presented a real-time cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: storm, spark streaming and flink. We concluded that flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world. We have implemented the system and have done some experiments to it. The system can handle over <todo>xxx messages per second.</todo>
 
 # References
 Coindesk, (2020). URL: https://www.coindesk.com/
