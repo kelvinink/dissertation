@@ -145,6 +145,8 @@ In previous sections, we have presented the architectures of the rcas system. We
 ## System Deployment
 <todo>Figurexxx shows the deployment specification of our system.</todo> The system is composed of 8 CVM(Cloud Virtual Machine) instance represented by cuboid. We have one flink master running the flink jobmanager, and 3 flink slaves running the taskmanager. Each taskmanager is managing 8 task slots with 12GB of RAM allocated in total. So, the flink manager is actually managing 32 task slots. The redis server is deployed on the same CVM instance as the flink master. This doesn't degrade the performance much for the flink master. Because it only need to manage 3 CVM instances. We also got 3 virtual instances for machine learning services. Each of the instance has 8 sentiment analysis servers (multiprocesses) running in parallel. To distribute workload evenly, we set up a nginx load balance server for dispatching incoming requestes to the underlying sentiment analysis servers. Flink cluster and machine learning cluster are computation intensive. We choose the 'CN3.2XLARGE16' instance type after considering budget and performance.
 
+![deployment diagram](fig/ref_dd.png)
+
 Here is the configuration 'CN3.2XLARGE16' of instance:
 
 Components    Specifications
