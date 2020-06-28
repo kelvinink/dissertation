@@ -10,7 +10,7 @@ from data_source.reddit import reddit_credentials
 
 #################### Configuration ####################
 bootstrap_servers = ['129.204.135.185:19092']
-kafka_topic = "rcas_twitter_raw"
+kafka_topic = "rcas_reddit_raw"
 #######################################################
 
 
