@@ -22,7 +22,9 @@ def twitter_sentiment():
     producer = kafka_producer()
 
     # Fetching data from kafka
+    count = 0
     for msg in consumer:
+        count += 1
         try:
             # Extracting text
             msg_val = json.loads(msg.value.decode('utf-8'))
@@ -39,7 +41,7 @@ def twitter_sentiment():
             item = json.loads(sentiment_res)
 
             msg_val["sentiment"] = item
-            #print(json.dumps(msg_val))
+            print(json.dumps(msg_val))
 
             # Pushing analyzed data back into kafka
             producer.send(config.KAFKA['topic']['rcas_twitter_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
@@ -47,12 +49,17 @@ def twitter_sentiment():
             print(e)
             continue
 
+        if count%10000 == 0:
+            print("#msg processed: " + str(count))
+
 def reddit_sentiment():
     consumer = kafka_consumer(config.KAFKA['topic']['rcas_reddit_raw'])
     producer = kafka_producer()
 
     # Fetching data from kafka
+    count = 0
     for msg in consumer:
+        count += 1
         try:
             # Extracting text
             msg_val = json.loads(msg.value.decode('utf-8'))
@@ -77,6 +84,11 @@ def reddit_sentiment():
         except BaseException as e:
             print(e)
             continue
+
+        if count%10000 == 0:
+            print("#msg processed: " + str(count))
+
 if __name__ == '__main__':
+    print("Start sentiment analysis")
     #twitter_sentiment()
     reddit_sentiment()

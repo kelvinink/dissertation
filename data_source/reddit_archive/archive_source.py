@@ -1,7 +1,7 @@
 import bz2
 import json
 import csv
-import subprocess
+import time
 
 from kafka import KafkaProducer
 
@@ -16,12 +16,15 @@ attrs = ["id", "created_utc", "link_id", "subreddit_id",
         "score", "stickied", "body"]
 
 if __name__ == '__main__':
+    start = time.time()
+    print("Start pushing reddits to kafka cluster")
+
     with open(file_path) as f:
         csv_reader = csv.DictReader(f, delimiter=',')
         line_count = 0
         for row in csv_reader:
             if line_count == 0:
-                print(f'Column names are {", ".join(row)}')
+                #print(f'Column names are {", ".join(row)}')
                 line_count += 1
             else:
                 try:
@@ -35,5 +38,10 @@ if __name__ == '__main__':
                 except BaseException as e:
                     print("Error on parsing data %s" % str(e))
                 line_count += 1
+
+            if line_count % 10000 == 0:
+                end = time.time()
+                elapsed = end - start
+                print("#Rows sent: " + str(line_count) + "  elapsed: " + str(int(elapsed)) + "sec")
 
 
