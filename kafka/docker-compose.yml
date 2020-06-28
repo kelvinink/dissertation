@@ -40,15 +40,15 @@ services:
     container_name: kafka2
     ports:
       - '9092'
-      - '29092:29092'
+      - '16002:16002'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=2
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:29092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka2:9092,EXTERNAL://${HOST}:29092
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16002
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka2:9092,EXTERNAL://${HOST}:16002
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -59,15 +59,15 @@ services:
     container_name: kafka3
     ports:
       - '9092'
-      - '39092:39092'
+      - '16003:16003'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=3
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:39092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka3:9092,EXTERNAL://${HOST}:39092
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16003
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka3:9092,EXTERNAL://${HOST}:16003
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -78,15 +78,15 @@ services:
     container_name: kafka4
     ports:
       - '9092'
-      - '49092:49092'
+      - '16004:16004'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=4
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:49092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka4:9092,EXTERNAL://${HOST}:49092
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16004
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka4:9092,EXTERNAL://${HOST}:16004
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -97,15 +97,15 @@ services:
     container_name: kafka5
     ports:
       - '9092'
-      - '59092:59092'
+      - '16005:16005'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=5
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:59092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka5:9092,EXTERNAL://${HOST}:59092
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16005
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka5:9092,EXTERNAL://${HOST}:16005
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -116,15 +116,15 @@ services:
     container_name: kafka6
     ports:
       - '9092'
-      - '6906:6906'
+      - '16006:16006'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=6
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:6906
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka6:9092,EXTERNAL://${HOST}:6906
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16006
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka6:9092,EXTERNAL://${HOST}:16006
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -135,15 +135,15 @@ services:
     container_name: kafka7
     ports:
       - '9092'
-      - '7907:7907'
+      - '16007:16007'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=7
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:7907
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka7:9092,EXTERNAL://${HOST}:7907
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16007
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka7:9092,EXTERNAL://${HOST}:16007
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
@@ -154,16 +154,168 @@ services:
     container_name: kafka8
     ports:
       - '9092'
-      - '8908:8908'
+      - '16008:16008'
     depends_on: 
       - zookeeper
     environment:
       - KAFKA_BROKER_ID=8
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:8908
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka8:9092,EXTERNAL://${HOST}:8908
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16008
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka8:9092,EXTERNAL://${HOST}:16008
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
     networks: 
+      - rcas
+  kafka9:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka9
+    container_name: kafka9
+    ports:
+      - '9092'
+      - '16009:16009'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=9
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16009
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka9:9092,EXTERNAL://${HOST}:16009
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka10:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka10
+    container_name: kafka10
+    ports:
+      - '9092'
+      - '16010:16010'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=10
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16010
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka10:9092,EXTERNAL://${HOST}:16010
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka11:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka11
+    container_name: kafka11
+    ports:
+      - '9092'
+      - '16011:16011'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=11
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16011
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka11:9092,EXTERNAL://${HOST}:16011
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka12:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka12
+    container_name: kafka12
+    ports:
+      - '9092'
+      - '16012:16012'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=12
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16012
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka12:9092,EXTERNAL://${HOST}:16012
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka13:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka13
+    container_name: kafka13
+    ports:
+      - '9092'
+      - '16013:16013'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=13
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16013
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka13:9092,EXTERNAL://${HOST}:16013
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka14:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka14
+    container_name: kafka14
+    ports:
+      - '9092'
+      - '16014:16014'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=14
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16014
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka14:9092,EXTERNAL://${HOST}:16014
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka15:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka15
+    container_name: kafka15
+    ports:
+      - '9092'
+      - '16015:16015'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=15
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16015
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka15:9092,EXTERNAL://${HOST}:16015
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
+      - rcas
+  kafka16:
+    image: 'bitnami/kafka:2.4.0-ol-7-r55'
+    hostname: kafka16
+    container_name: kafka16
+    ports:
+      - '9092'
+      - '16016:16016'
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=16
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:16016
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka16:9092,EXTERNAL://${HOST}:16016
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+    networks:
       - rcas

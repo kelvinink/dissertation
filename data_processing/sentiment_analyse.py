@@ -39,7 +39,7 @@ def twitter_sentiment():
             item = json.loads(sentiment_res)
 
             msg_val["sentiment"] = item
-            print(json.dumps(msg_val))
+            #print(json.dumps(msg_val))
 
             # Pushing analyzed data back into kafka
             producer.send(config.KAFKA['topic']['rcas_twitter_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))
@@ -69,7 +69,7 @@ def reddit_sentiment():
             item = json.loads(sentiment_res)
 
             msg_val["sentiment"] = item
-            print(json.dumps(msg_val))
+            #print(json.dumps(msg_val))
 
             # Pushing analyzed data back into kafka
             producer.send(config.KAFKA['topic']['rcas_reddit_after_sentiment'],  json.dumps(msg_val).encode('utf-8'))

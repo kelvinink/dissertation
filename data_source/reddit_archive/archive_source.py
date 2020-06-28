@@ -30,7 +30,7 @@ if __name__ == '__main__':
                         item = str(row[attr]).replace('\n', '')
                         record[attr] = item if item is not None else ""
                     producer.send(kafka_topic, json.dumps(record).encode('utf-8'))
-                    print(json.dumps(record).encode('utf-8'))
+                    #print(json.dumps(record).encode('utf-8'))
 
                 except BaseException as e:
                     print("Error on parsing data %s" % str(e))

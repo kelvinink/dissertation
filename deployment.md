@@ -39,14 +39,17 @@ visualization/server.py
 # Set Partitions for Topics
 ```shell
 docker exec -it kafka1 bash
-kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 8 --topic rcas_twitter_raw
-kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 8 --topic rcas_twitter_after_sentiment
+kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 16 --topic rcas_reddit_raw
+kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 16 --topic rcas_reddit_after_sentiment
 
-kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_twitter_raw --partitions 8
-kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_twitter_after_sentiment --partitions 8
+kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_reddit_raw --partitions 16
+kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic rcas_reddit_after_sentiment --partitions 16
 
 kafka-topics.sh --describe --bootstrap-server localhost:9092
 ```
+
+
+
 
 # Fix Crypto Virus
 ```shell

@@ -241,7 +241,7 @@ Our system still has much room for improvements. First, We only used several fea
 
 Second, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
 
-Third, other sentiment indicators can be introduced into system. Currently, we only got two descriptive indicators. More quantitive indicators can be measured and improve the predicting result by combining them together according to weight.
+Third, other sentiment indicators can be introduced into the system. Currently, we only got two descriptive indicators. More quantitive indicators can be measured and improve the predicting result by combining them together according to weight.
 
 # Conclusion
 In this paper, we presented a real-time cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: Storm, Spark streaming and Flink. We concluded that Flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world. We have implemented the system and have done some experiments to it. The system can handle over <todo>xxx messages per second.</todo>

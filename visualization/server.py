@@ -47,9 +47,9 @@ def assemble_ps():
       google.charts.setOnLoadCallback(drawTable);
       function drawTable() {
         var data = new google.visualization.DataTable();
-        data.addColumn("number", "#Tweets");
+        data.addColumn("number", "#Messages");
         data.addColumn("number", "Duration");
-        data.addColumn("number", "Process Speed (tweets/sec)");
+        data.addColumn("number", "Process Speed (messages/sec)");
         data.addRows([
           [""" + str(count) + "," + str(duration) + "," +  str(count/duration) +  """],
         ]);
