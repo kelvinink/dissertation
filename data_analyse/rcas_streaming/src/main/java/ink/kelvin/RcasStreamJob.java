@@ -39,10 +39,10 @@ import java.util.regex.Pattern;
 
 public class RcasStreamJob {
     // ##################### Configuration #####################
-    static String bootstrapServer = "129.204.135.185:19092";
+    static String bootstrapServer = "42.194.194.145:19092";
     static String kafkaTopic = "rcas_reddit_after_sentiment";
     static String kafkaGroupID = "flink";
-    static String RedisHost = "localhost";
+    static String RedisHost = "106.52.252.27";
     // #########################################################
 
     private static DataStream<ObjectNode> makeKafkaStream(StreamExecutionEnvironment env) {

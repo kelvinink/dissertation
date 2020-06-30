@@ -151,7 +151,7 @@ Instance Type CN3.2XLARGE16
 CPU           Intel Xeon Skylake 6146(3.2 GHz)
 #vCores       8
 RAM           16GB
-Network       6Gbps
+Network       5Gbps
 OS            Ubuntu:4.15.0-54-generic
 Hard Disk     1×50GB
 
@@ -166,7 +166,7 @@ CPU           Intel Xeon Skylake 6133(2.5 GHz)
 RAM           64GB
 Network       6Gbps
 OS            Ubuntu:4.15.0-54-generic
-Hard Disk     1×3720GB NVMe SSD
+Hard Disk     1×50GB
 
 ## Streaming Data Collection
 We collect real-time data from twitter and reddit streaming API. There are many other media platforms for data collection, like facebook, weibo etc. We choose twitter and reddit for the reason that they have the most largest and diversified population of users. As of Sep 2019, the number of daily active users in twitter is 152 million. International users makes up around 79% of the total users of twitter (Omnicore). When it comes to reddit, there are over 1515 millions unique active users in May 2020. 
