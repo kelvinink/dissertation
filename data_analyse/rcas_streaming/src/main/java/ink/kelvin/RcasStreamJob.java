@@ -8,13 +8,15 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
+import org.apache.flink.streaming.api.watermark.Watermark;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -26,11 +28,9 @@ import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.flink.streaming.util.serialization.JSONKeyValueDeserializationSchema;
 import org.apache.flink.util.Collector;
 
-import java.security.Timestamp;
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -53,13 +53,13 @@ public class RcasStreamJob {
         FlinkKafkaConsumer<ObjectNode> kafkaConsumer = new FlinkKafkaConsumer<>(
                 kafkaTopic, new JSONKeyValueDeserializationSchema(false), props);
         //kafkaConsumer.setStartFromLatest();
-
         return env.addSource(kafkaConsumer);
     }
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
+        //env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         //env.enableCheckpointing(1000*60);
         //env.setParallelism(6);
 
@@ -80,11 +80,11 @@ public class RcasStreamJob {
 //        AnalyTweetProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
 //        AnalyTweetWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
-//        AnalyRedditWindowNegNeuPos(radditStream, 5).print();
-//        AnalyRedditProcessStatistics(radditStream).print();
-//        AnalyRedditWordCloud(radditStream).print();
+        AnalyRedditWindowNegNeuPos(radditStream, 100).print();
+        AnalyRedditProcessStatistics(radditStream).print();
+        AnalyRedditWordCloud(radditStream).print();
 
-        AnalyRedditWindowNegNeuPos(radditStream, 5).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
+        AnalyRedditWindowNegNeuPos(radditStream, 100).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
         AnalyRedditProcessStatistics(radditStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
         AnalyRedditWordCloud(radditStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
@@ -104,7 +104,7 @@ public class RcasStreamJob {
         return stream.keyBy("nokey").flatMap(new RedditCountAndDuration());
     }
 
-    public static DataStream<Tuple4<String, Double, Double, Double>> AnalyRedditWindowNegNeuPos(DataStream<Reddit> stream, Integer seconds){
+    public static DataStream<Tuple4<String, Double, Double, Double>> AnalyRedditWindowNegNeuPos(DataStream<Reddit> stream, Integer count){
         return stream
                 .filter(t -> t.created_utc.matches("^[0-9]*$"))
                 .flatMap(new FlatMapFunction<Reddit, Tuple4<String, Double, Double, Double>>() {
@@ -113,7 +113,7 @@ public class RcasStreamJob {
                         Tuple4<String, Double, Double, Double> t = new Tuple4<String, Double, Double, Double>(reddit.created_utc, reddit.sentiment_neg, reddit.sentiment_neu, reddit.sentiment_pos);
                         collector.collect(t);
                     }})
-                .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(seconds)))
+                .countWindowAll(count)
                 .reduce((t1, t2) -> new Tuple4<>(t2.f0, (t1.f1*0.95 + t2.f1*0.05) , (t1.f2*0.95 + t2.f2*0.05), (t1.f3*0.95 + t2.f3*0.05)))
                 .map(new MapFunction<Tuple4<String, Double, Double, Double>, Tuple4<String, Double, Double, Double>>() {
                     @Override
