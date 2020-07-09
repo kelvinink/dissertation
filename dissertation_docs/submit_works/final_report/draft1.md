@@ -55,11 +55,11 @@ Hadoop MapReduce is a programming model for large scale data processing. Jobs ar
 ## Kappa architecture and Lambda Architecture
 To accomodate the need for both high throughput and low latency, Marz & Warren(2015) proposed a mixed architecture: lambda architecture. Lambda architecture is a data processing paradigm that is capable of dealing with massive amount of data. It mixes both batch and stream processing methods. Lambda architecture is compose of batch layer and speed layer. The batch layer is focus on increasing the accuracy by taking account into all available data. The result produced by batch layer is equivalent to equation "query result = f(all data)". Where f is the processing logic for the data. The speed layer is mainly focus on providing immediate view to the new incoming data. Query from clients are answered through the serving layer, which merges result from both batch layer and speed layer.
 
-<todo>![lambda architecture](fig/ref_lambda_arch.png)</todo>
+![lambda architecture](fig/ref_lambda_arch.png)
 
 Kappa architecture is a simplified architecture with batch processing system removed. It's proposed by Jay Kreps on an O'Reilly blog in 2014. The architecture enables analytics do data processing with a single technology stack. In Kappa system, streaming data is processed in the speed layer and pushed to serving layer directly. Unlike lambda architecture, you don't have to maintain two set of code for batch layer and speed layer seperately. Kappa unifies batch and stream processing by treating batch processing as special stream processing.
 
-<todo>![kappa architecture](fig/ref_kappa_arch.png)</todo>
+![kappa architecture](fig/ref_kappa_arch.png)
 
 ## Spark
 Hadoop has been a successful big data processing framework for years before the come up of Spark. Spark (Zaharia, Chowdhury, Franklin, Shenker,& Stoica, 2010) is a cluster big data framework that supports in-memory computing. The main contribution of Spark is that it introuduces the RDD data model into big data analysis area. This increases efficiency in processing interactive and iterative jobs. Hadoop MapReduce is not designed to reuse imtermidiate results. To reuse these results, we have to save them back to HDFS and reload them into memory at next iteration of MapReduce. This incurs performance penalty due to disk IO.  Spark minimizes the overhead by introducing in the resilient distributed datasets (RDD). A RDD is a collection of read only records that are partitioned across many machines. A RDD is created from external storage or other RDDs by the transformation operation. It can be explicitly cached in memory for reusing by multiple MapReduce tasks. To reuse a RDD in the future, users can persistent it to external storage. Fault tolerance of RDD is achieved by recording the lineage of the RDD. Lineages include information about how the RDD is drived from other RDDs. A RDD can be rebuilt if it's lost or crushed. <todo>Spark’s architecture consists of a Driver Program, a Cluster Manager and Worker Nodes</todo> <todo>Spark stream and micro-batch streaming</todo>
@@ -123,7 +123,7 @@ The main difference between the two is that Kafka offers higher throughput and i
 ## Real-Time Data Analysis
 Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is apache Flink. In previous sections, we have introduced some background of Flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controling window, time and checkpointing. 
 
-Spark is a direct competitor of Flink in stream processing area. Comparing to Spark streaming, Flink offers more fine-grained control for windowing incoming data. In Spark streaming, data are min-batched in processing time, and there is no option for batching in event-time. In the mean time, caculation of Spark streaming is triggered globaly instead of operator by operator. While in Flink, we can batch data in event time by specifying window assigner, and trigger caculation for each operator by setting its own trigger. <todo>in our system, why using Flink is better</todo> 
+Spark is a direct competitor of Flink in stream processing area. Comparing to Spark streaming, Flink offers more fine-grained control for windowing incoming data. In Spark streaming, data are min-batched in processing time, and there is no option for batching in event-time. In the mean time, caculation of Spark streaming is triggered globaly instead of operator by operator. While in Flink, we can batch data in event time by specifying window assigner, and trigger caculation for each operator by setting its own trigger. 
 
 In addition, Flink provides lower latency than Spark streaming, which is critical to our system. Our goal is to provide users with a system that can reveal the trend of cryptocurrencies timeliness. Flink can process incoming data in elementwise basis. While in Spark streaming, it has to wait enough of data that can form a mini-batch, which increases latency. With the considerations above, we decided to use Flink instead of Spark streaming. 
 <todo>make a table comparison among Flink, Storm, Spark, Spark streaming</todo>
@@ -193,8 +193,9 @@ sentiment_neu         Sentiment result, neutral value
 sentiment_pos         Sentiment result, positive value
 sentiment_compound    Sentiment result, compound value
 
-In particular, the three sentiment_xxx fields represent the weight of negative, neutral and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1. The sentiment_compound field consist the value takes into account of the other 3 sentiment values. In addtion to sentiment results, there are some other fields related to the tweets.
+In particular, the three sentiment_xxx fields represent the weight of negative, neutral and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1. The sentiment_compound field consist the value takes into account of the other 3 sentiment values. In addtion to sentiment results, there are some other fields related to the tweets and reddits.
 
+Tweets:
 Fields                Descriptions
 -------------------------------------------------
 id_str                ID of this message
@@ -209,6 +210,16 @@ timestamp_ms          Timestamp of this message
 lang                  Language
 text                  Text body (user comments)
 
+Reddits
+Fields                Descriptions
+-------------------------------------------------
+id                    ID of this message
+created_utc           Creation time of the message
+subreddit_id          ID of subreddit that this message belongs to
+score                 
+stickied              
+text                  Text body (user comments)
+
 Our system presents two indicators of cryptocurrency price. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
 
 ### Word Cloud of Twitter User Comments
@@ -216,22 +227,29 @@ Word cloud is a chart that users can quickly perceive the most prominent term on
 
 Words         Count
 -------------------------
-Bitcoin       39882
+bitcoin       39882
 good          28933
 rise          18839
-promotion     16893
+better        16893
+iota          14283
 eth           12898
 ...
 
-As is shown on the sample weighted list, Bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by extracting user comments text from each message first. <todo>may be we can do word selection here</todo> Then we split these comments into words and aggregate the count. Finally, the results are written to Redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topics at the time, which gives investors some sense of what's going on in the market.
+As is shown on the sample weighted list, Bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by first extracting user comments text from each message. Second, we split these comments into words. We removed some common stop words, and preserve only english words. Then, we aggregate the count for each word. Finally, the results are written to Redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topics at the time, which gives investors some sense of what's going on in the market.
 
 ### Opinion Variation
-We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 3 minutes. The result is written to Redis as a sorted set with current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. Users can see the opinion variation within one hour. It helps them to distinguish market variation and respond to it imediately. <todo>Figurexxx shows an example result, describe the figure</todo> 
+We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 100 comments. The result is written to Redis as a sorted set with current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. Users can see the opinion variation within one hour. It helps them to distinguish market variation and respond to it imediately. <todo>Figurexxx shows an example result</todo>
+
+![word_cloud](fig/word_cloud.png)
 
 ## Performance
 We monitor the performance of our system by inspecting the number of messages it can process per second. The summary of results is provided in the following table:
-<todo>#messages/sec</todo>
-The system can process around <todo>xxx</todo> messages per second. The number of comments about cryptocurrency generated by twitter is around <todo>xxx</todo> each day. Using our system, you can handle that volumn of data without pressure. With the Redis datastore, you can also serve more than 100,000 clients concurrently.
+
+#messages    sec    #messages/sec
+----------------------------------
+612,288      96     6378
+
+The system can process around 6378 messages per second in our experiment. The bottleneck of the system is the sentiment analysis subsystem. There are two approach to improve the performance. One is to add more computing resources to the sentiment subsystem. The other approach is to ship some sentiment analysis containers to those machines that flink taskmanager reside. With the Redis datastore, you can also serve more than 100,000 clients concurrently.
 
 # Discussion
 In this section, we are going to present some of the future works that can be done to the current system. Our system is highly extendable, it's easy to integrate other social media source like reddit, facebook etc. It requires minimal changes to the data extraction logic and redeploy the program. Users can push data that they collected from other media to the Kafka cluster. Then they need to define the structure of these data and extract texts for sentiment analysis. 
@@ -240,10 +258,10 @@ Our system still has much room for improvements. First, We only used several fea
 
 Second, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
 
-Third, other sentiment indicators can be introduced into the system. Currently, we only got two descriptive indicators. More quantitive indicators can be measured and improve the predicting result by combining them together according to weight.
+Third, other indicators can be introduced into the system. Currently, we only got two descriptive indicators. More quantitative indicators can be measured and improve the predicting result by combining them together according to weight.
 
 # Conclusion
-In this paper, we presented a real-time cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: Storm, Spark streaming and Flink. We concluded that Flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world. We have implemented the system and have done some experiments to it. The system can handle over <todo>xxx messages per second.</todo>
+In this paper, we presented a real-time cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: Storm, Spark streaming and Flink. We concluded that Flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world. We have implemented the system and have done some experiments to it. The system can handle over 6378 messages per second in our experiment.
 
 # References
 Coindesk, (2020). URL: https://www.coindesk.com/
