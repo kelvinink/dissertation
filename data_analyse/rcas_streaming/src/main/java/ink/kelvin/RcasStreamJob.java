@@ -52,7 +52,7 @@ public class RcasStreamJob {
 
         FlinkKafkaConsumer<ObjectNode> kafkaConsumer = new FlinkKafkaConsumer<>(
                 kafkaTopic, new JSONKeyValueDeserializationSchema(false), props);
-        //kafkaConsumer.setStartFromLatest();
+        kafkaConsumer.setStartFromLatest();
         return env.addSource(kafkaConsumer);
     }
 
@@ -80,9 +80,9 @@ public class RcasStreamJob {
 //        AnalyTweetProcessStatistics(tweetStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
 //        AnalyTweetWordCloud(tweetStream).addSink(new RedisSink<>(redisConf, new WordCloudRedisMapper()));
 
-        AnalyRedditWindowNegNeuPos(radditStream, 100).print();
-        AnalyRedditProcessStatistics(radditStream).print();
-        AnalyRedditWordCloud(radditStream).print();
+//        AnalyRedditWindowNegNeuPos(radditStream, 100).print();
+//        AnalyRedditProcessStatistics(radditStream).print();
+//        AnalyRedditWordCloud(radditStream).print();
 
         AnalyRedditWindowNegNeuPos(radditStream, 100).addSink(new RedisSink<>(redisConf, new WindowNegNeuPosRedisMapper()));
         AnalyRedditProcessStatistics(radditStream).addSink(new RedisSink<>(redisConf, new ProcessStatisticsRedisMapper()));
