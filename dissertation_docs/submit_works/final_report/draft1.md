@@ -175,12 +175,12 @@ Twitter provides a streaming API that returns tweets containing a set of keyword
 We have downloaded a Reddit dataset from Kaggle, which is a machine learning competition and dataset platform. The dataset contains 3834035 comments from the 'cryptocurrency' subreddit from Dec 2017 to Mar 2018. Each comment has 24 attributes, including author,body,created_utc,score,subreddit etc. For the reason that our sentiment analysis model can only handle English sentences, comments written in a language other than English are filtered out. Other unusual characters, emojis are also removed.
 
 ## Kafka Cluster
-In our system, we have 16 Kafka broker. They are running on the same machine with 16 CPU cores, each topic are decomposed into 16 partitions. For each partition, there exists only one replica. Because data reliability is insignificant for our system. We have created two topics: one for collecting data from social media streaming API, the other is for storing messages which has been processed by our machine learning service. 
+In our system, we have 16 Kafka broker. They are running on the same machine with 16 CPU cores, each topic is decomposed into 16 partitions. For each partition, there exists only one replica. Because data reliability is insignificant for our system. We have created two topics: one for collecting data from social media streaming API, the other is for storing messages which have been processed by our machine learning service. 
 
 ## Sentiment Analysis
 
 ## Data Aggregation
-As mentioned in system deployment section, we run aggregation subsystem on a Flink standalone cluster with four Tencent 'CN3.2XLARGE16' CVM nodes. One of the four nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12GB memory and 8 task slots.
+As mentioned in the system deployment section, we run the aggregation subsystem on a Flink standalone cluster with four Tencent 'CN3.2XLARGE16' CVM nodes. One of the four nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12GB memory and 8 task slots.
 
 Data returned from sentiment analysis includes the following fields:
 
@@ -192,7 +192,7 @@ sentiment_neu         Sentiment result, neutral value
 sentiment_pos         Sentiment result, positive value
 sentiment_compound    Sentiment result, compound value
 
-In particular, the three sentiment_xxx fields represent the weight of negative, neutral and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1. The sentiment_compound field consist the value takes into account of the other 3 sentiment values. In addtion to sentiment results, there are some other fields related to the tweets and reddits.
+In particular, the three sentiment_xxx fields represent the weight of negative, neutral, and positive mood correspondingly. Where sentiment_neg + sentiment_neu + sentiment_pos = 1. The sentiment_compound field consists of the value that takes into account the other 3 sentiment values. In addition to sentiment results, there are some other fields related to the tweets and reddits.
 
 Tweets:
 Fields                Descriptions
@@ -219,10 +219,10 @@ score
 stickied              
 text                  Text body (user comments)
 
-Our system presents two indicators of cryptocurrency price. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral and positive opinion in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
+Our system presents two indicators of cryptocurrency price. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral, and positive opinions in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
 
 ### Word Cloud of Twitter User Comments
-Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight a term has, the larger font size it has on the chart. To produce a word cloud, we must supply a weighted list of words. The list should be in word-count pair form. Here is a sample list:
+Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight a term has, the larger font-size it has on the chart. To produce a word cloud, we must supply a weighted list of words. The list should be in word-count pair form. Here is a sample list:
 
 Words         Count
 -------------------------
@@ -234,15 +234,15 @@ iota          14283
 eth           12898
 ...
 
-As is shown on the sample weighted list, Bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by first extracting user comments text from each message. Second, we split these comments into words. We removed some common stop words, and preserve only english words. Then, we aggregate the count for each word. Finally, the results are written to Redis as a sorted set where score is the count of words. Our visualization subsystem extract the top 30 words by score and construct a word cloud for displaying. The word cloud of top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topics at the time, which gives investors some sense of what's going on in the market. <todo>Figurexxx shows an example result for comments from 2018-01-25 20:45:52 to 2018-01-26 19:25:27</todo> 
+As is shown on the sample weighted list, Bitcoin is the most frequently mentioned word with the count 39882. We conduct calculation by first extracting user comments text from each message. Second, we split these comments into words. We removed some common stop words, and preserve only English words. Then, we aggregate the count for each word. Finally, the results are written to Redis as a sorted set where the score is the count of words. Our visualization subsystem extracts the top 30 words by score and constructs a word cloud for displaying. The word cloud of the top 30 most common words is a good indicator that reveals the trend of user opinion. It displays the hot topics at the time, which gives investors some sense of what's going on in the market. <todo>Figurexxx shows an example result for comments from 2018-01-25 20:45:52 to 2018-01-26 19:25:27</todo> 
 
-As can be seen on the figure, words like 'bitcoin', 'btc', 'crypto' have occupied a large proportion area. These information may not be much helpful because it's too common. While words like 'iota', 'good', 'want', 'never' and 'better' imply opinion moods of people. The figure helps investors to realized that people are hyping the altcoin 'iota' at that time. Maybe it's the time to take a chance or arbitrage from it.
+As can be seen in the figure, words like 'bitcoin', 'btc', 'crypto' have occupied a large proportion area. This information may not be much help because it's too common. While words like 'iota', 'good', 'want', 'never' and 'better' implies the opinion moods of people. The figure helps investors to realize that people are hyping the altcoin 'iota' at that time. Maybe it's the time to take a chance or arbitrage from it.
 
 ![word_cloud](fig/word_cloud.png)
 
 
 ### Opinion Variation
-We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinion every 100 comments. The result is written to Redis as a sorted set with current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. Users can see the opinion variation within one hour. It helps them to distinguish market variation and respond to it imediately. <todo>Figurexxx shows an example result for comments from 2018-01-25 20:45:52 to 2018-01-26 19:25:27</todo> In the stepped area chart, the horizontal axis is time series and the vertical axis is percentage of each opinion mood. Most of the area is in blue background, which represent neutral. Only a small portion of area are in orange and red which represent positive and negative correspondingly. When we observe a zizag like that's at 2018-01-26 18:57:45 on the chart, it may indicate that the market has some postive/negative news comes out. And inverstors can take response to it.
+We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinions every 100 comments. The result is written to Redis as a sorted set with the current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. Users can see the opinion variation within one hour. It helps them to distinguish market variation and respond to it immediately. <todo>Figurexxx shows an example result for comments from 2018-01-25 20:45:52 to 2018-01-26 19:25:27</todo> In the stepped area chart, the horizontal axis is time series and the vertical axis is the percentage of each opinion mood. Most of the area is in the blue background, which represents neutral. Only a small portion of the area is in orange and red which represents positive and negative correspondingly. When we observe a zigzag like that's at 2018-01-26 18:57:45 on the chart, it may indicate that the market has some positive/negative news that comes out. And investors can take responses to it.
 
 ![stepped_area](fig/stepped_area_graph.png)
 
@@ -253,19 +253,19 @@ We monitored the performance of our system by inspecting the number of messages 
 ----------------------------------
 612,288      96     6378
 
-The system can process around 6378 messages per second in our experiment. The bottleneck of the system is the sentiment analysis subsystem. There are two approach to improve the performance. One is to add more computing resources to the sentiment subsystem. The other approach is to ship some sentiment analysis containers to those machines that Flink taskmanager reside. With the Redis datastore, you can also serve more than 100,000 clients concurrently.
+The system can process around 6378 messages per second in our experiment. The bottleneck of the system is the sentiment analysis subsystem. There are two approaches to improve performance. One is to add more computing resources to the sentiment subsystem. The other approach is to ship some sentiment analysis containers to those machines that Flink taskmanager reside. With the Redis datastore, you can also serve more than 100,000 clients concurrently.
 
 # Discussion
-In this section, we are going to present some of the future works that can be done to the current system. Our system is highly extendable, it's easy to integrate other social media source like Reddit, Facebook etc. It requires minimal changes to the data extraction logic and redeploy the program. Users can push data that they collected from other media to the Kafka cluster. Then they need to define the structure of these data and extract texts for sentiment analysis. 
+In this section, we are going to present some of the future works that can be done to the current system. Our system is highly extendable, it's easy to integrate other social media sources like Reddit, Facebook, etc. It requires minimal changes to the data extraction logic and redeploys the program. Users can push data that they collected from other media to the Kafka cluster. Then they need to define the structure of these data and extract texts for sentiment analysis. 
 
-Our system still has much room for improvements. First, We only used several features of each tweets. In future, we plan to extend the system to include more features of tweets. This will give our users a broader overview to current status of cryptocurrencyies. 
+Our system still has much room for improvement. First, We only used several features of each tweets. In the future, we plan to extend the system to include more features of tweets. This will give our users a broader overview of the current status of cryptocurrencies. 
 
-Second, the system running parameters (eg.window size) are hard coded, in future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
+Second, the system running parameters (eg.window size) are hardcoded, in the future, we plan to make it configurable dynamically. We will optimize the system by taking into account user requirements.
 
-Third, other indicators can be introduced into the system. Currently, we only got two descriptive indicators. More quantitative indicators can be measured and improve the predicting result by combining them together according to weight.
+Third, other indicators can be introduced into the system. Currently, we only got two descriptive indicators. More quantitative indicators can be measured and improve the predicting result by combining them according to weight.
 
 # Conclusion
-In this big data era, there are more and more real-time data being produced. Social media data is one typical example real-time data that keeps generating every seconds. In this paper, we presented a real-time cryptocurrency price analysis system that supports custormer decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: Storm, Spark streaming and Flink. We concluded that Flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework which is natural in real world. We have implemented the system and have done some experiments on it. The system can handle over 6378 messages per second in our experiment. Finally, we discussed the future improvement direction of the system.
+In this big data era, there are more and more real-time data being produced. Social media data is one typical example of real-time data that keeps generating every second. In this paper, we presented a real-time cryptocurrency price analysis system that supports customers decision making. We started by introducing the evolution of large scale data processing framework. And illustrated some pros and cons of using batch processing systems. Then, we demonstrated that the demand for stream processing framework is increasing rapidly. We compared several streaming frameworks: Storm, Spark streaming, and Flink. We concluded that Flink is the framework that offers the most flexible functionalities. It's a native streaming processing framework that is natural in the real world. We have implemented the system and have done some experiments on it. The system can handle over 6378 messages per second in our experiment. Finally, we discussed the future improvement direction of the system.
 
 # References
 Coindesk, (2020). URL: https://www.coindesk.com/
