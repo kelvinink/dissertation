@@ -236,7 +236,7 @@ text                  Text body (user comments)
 
 Our system presents two indicators of cryptocurrency price. One is a word cloud chart presenting 30 of the most commonly used words in user comments. The other is the percentage of negative, neutral, and positive opinions in 3 minutes window. In order to measure the performance of the system, we also return the number of messages that have been processed, and duration since the bootstrap of the system.
 
-### Word Cloud of Twitter User Comments
+### Word Count of Twitter User Comments
 Word cloud is a chart that users can quickly perceive the most prominent term on it. The higher weight a term has, the larger font-size it has on the chart. To produce a word cloud, we must supply a weighted list of words. The list should be in word-count pair form. Here is a sample list:
 
 Words         Count
@@ -323,3 +323,5 @@ Twitter Streaming API. URL: https://developer.Twitter.com/en/docs/tweets/filter-
 Omnicore. URL: https://www.omnicoreagency.com/Twitter-statistics/#:~:text=Twitter%20Demographics&text=There%20are%20262%20million%20International,are%20on%20the%20platform%20daily.
 
 Kaggle Cryptocurrency Subeddit Dataset. URL: https://www.kaggle.com/nickreinerink/Reddit-rcryptocurrency
+
+Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014
