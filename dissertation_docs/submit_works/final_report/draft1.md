@@ -118,6 +118,20 @@ The main difference between the two is that Kafka offers higher throughput and i
 ![kafka_vs_rabbitmq](fig/kafka_vs_rabbitmq.jpg)
 
 ## Machine Learning Services
+There are various options for the Sentiment Analysis Module. One direction is to use Machine learning approaches. But Machine learning based approaches are supervised learning and require adequately large training set for the model to learn the differentiating characteristics of the text input. Therefore it is very time consuming for training and prediction. Also, module trained from one training set cannot have good enough performance on another data set, and some low level errors may occur under some circumstances, which is not acceptable for online high precision project. 
+
+Regarding the above considerations, we choose Vader sentiment analysis in our system architecture. VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains. It is introduced in AAAI conference in 2014. Our objective is not to innovate in the natural language processing domain but instead to establish a scalable architecture that is able to capture the relationship between social media sources and financial markets, specifically in the context of the cryptocurrency market.
+
+When given a text in Vader, it outputs three scores for each sentiment (i.e. positive, negative and neutral.) A fourth compound score is computed by summing the three scores of each word in the lexicon, adjusted according to the rules, and then normalized to be between -1 (extreme negative) and +1 (extreme positive). To summarize, it is a normalized, weighted composite score. 
+
+Tweets belonging to influential personalities should be assigned more weight since they will have a more significant impact on the price of cryptocurrency. To capture this relationship the compound score is multiplied by the poster’s follower count, the number of likes on the tweet and the retweet count. The final score is calculated with the following equation: 
+
+FinalScore =
+CompoundScore∗ UserFollowerCount ∗ (Likes + 1) ∗ (RetweetCount + 1)
+
+The construction of Vader dictionary is based on word labelling by human being. More than 7000 emotion words are included in Vader and each word is labelled by 10 different people with different polarity and intensity. Different from other emotion dictionary, Vader also includes common emojis and abbreviations for social media situation like Twitter.
+
+Some rules in Vader also enhance its performance in various situation. For example, exclamatory mark “!”, uppercase word, and adverb like “extremely” will increase the emotion intensity; conjunction word “but” will reverse the sentence sentiment and emotion words after “but” will be emphasized. 
 
 ## Real-Time Data Analysis
 Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is Apache Flink. In previous sections, we have introduced some background of Flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection, and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controlling window, time, and checkpointing. 
