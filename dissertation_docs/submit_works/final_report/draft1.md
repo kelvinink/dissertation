@@ -3,21 +3,20 @@ Real-time Cryptocurrency Analysis System
 
 # Contacts
 Liang, Zhihao  kelliang@connect.hku.hk
-Wang, Xue
+Wang, Xue      wangxue2@connect.hku.hk
 
 # Outline
 0. Abstract
 1. Introduction
 2. Background
-3. Related Works
-4. System Architecture
-5. Experimental Evaluation
-6. Discussion
-7. Conclusion
-8. References
+3. System Architecture
+4. Experimental Evaluation
+5. Discussion
+6. Conclusion
+7. References
 
 # Abstract
-Since the creation of Bitcoin, cryptocurrencies are attracting significant attention from researchers. They have been proposing many solutions for analyzing the price trend. One dimension of those research is to analyze the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement near real-time processing on Spark framework. However, Spark is a framework dedicated to batch processing, which suffers from high latency. To minimize latency, Spark has implemented a streaming API by applying micro-batch processing. But its performance in iterative or interactive applications is still unsatisfactory. In the area of capital markets, the price fluctuation is very fast and sharp. Analytics and stakeholders are demanding a timely system that can assist their decision making. In this context, the demand for a truly real-time cryptocurrency analyzation platform is rising rapidly. In this paper, we proposed a Flink-based cryptocurrency analyzation system that can handle massive amounts of data in real-time. Streaming data is evaluated continuously and the result is updated in seconds, not days or months.
+Since the creation of Bitcoin, cryptocurrencies have attracted significant attention from researchers. They have proposed many solutions for analyzing the price trend. One dimension of those research is to analyze the sentiment trend in social media like Twitter and Reddit. Some of these solutions even implement near real-time processing on Spark framework. However, Spark is a framework dedicated to batch processing, which suffers from high latency. To minimize latency, Spark has implemented a streaming API by applying micro-batch processing. But its performance in iterative or interactive applications is still unsatisfactory. In the area of capital markets, the price fluctuation is very fast and sharp. Analytics and stakeholders are demanding a timely system that can assist their decision making. In this context, the demand for a truly real-time cryptocurrency analyzation platform is rising rapidly. In this paper, we proposed a Flink-based cryptocurrency analyzation system that can handle massive amounts of data in real-time. Streaming data is evaluated continuously and the result is updated in seconds, not days or months.
 
 # Introduction
 Cryptocurrency is a kind of digital asset that's decentralized and secured by strong cryptography algorithms. Satoshi Nakamoto (2009) created the first generation cryptocurrency: Bitcoin in 2009. The validity of Bitcoin is provided by blockchain technology. A blockchain is a continuously growing list of records that are linked by a hash function. The hash function ensures that none of the records can be modified without being caught by others.
@@ -78,9 +77,6 @@ Time management is also critical for stream processing. Flink offers flexible no
 Transformation operators can keep states like counter, machine learning model, or intermediate aggregation result. States are key-value store embedded in stateful operators. Since states can be accessed locally, Flink applications achieve high throughput and low latency. Flink offers exactly-once state consistency by regularly checkpointing operator states to external storage. Flink employs a lightweight Chandy-Lamport algorithm for asynchronous distributed checkpointing. The algorithm allows checkpointing without halting the execution of tasks. So, checkpoint and normal task execution can run in parallel. 
 
 There are many options for Flink cluster deployment. You may deploy it as a standalone cluster or on resource management platforms like YARN, Mesos, Kubernetes, etc.
-
-
-# Related Works
 
 # System Architecture
 RCAS is a system that aims at providing cryptocurrency investors some insights via sentiment analysis. The analysis starts by collecting comment messages from social media. We extract those features that we concern and filter out the others. Then, these preprocessed data are fed into our sentiment analysis model and produce some sentiment statistics. The next step is to aggregate these sentiment analyses and display it on a dashboard.
