@@ -192,6 +192,7 @@ We have downloaded a Reddit dataset from Kaggle, which is a machine learning com
 In our system, we have 16 Kafka broker. They are running on the same machine with 16 CPU cores, each topic is decomposed into 16 partitions. For each partition, there exists only one replica. Because data reliability is insignificant for our system. We have created two topics: one for collecting data from social media streaming API, the other is for storing messages which have been processed by our machine learning service. 
 
 ## Sentiment Analysis
+We also assign 3 instances for Vader sentiment analysis module. Each of the instances has 8 sentiment analysis servers (multiprocess) running in parallel. We set up a nginx load balance server for dispatching incoming requests to the underlying sentiment analysis servers in order to distribute workload evenly. Vader Sentiment Analysis is also computation intensive and we choose the same instance type 'CN3.2XLARGE16' as the Flink Cluster.
 
 ## Data Aggregation
 As mentioned in the system deployment section, we run the aggregation subsystem on a Flink standalone cluster with four Tencent 'CN3.2XLARGE16' CVM nodes. One of the four nodes plays as the jobmanager, the other three nodes play as taskmanager. Each taskmanager is configured to have 12GB memory and 8 task slots.
