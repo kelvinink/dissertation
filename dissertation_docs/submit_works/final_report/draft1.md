@@ -109,7 +109,7 @@ To maximize throughput, a topic of Kafka is usually decomposed into multiple dis
 
 Kafka reduces latency by relying on page cache and zero-copy. In a typical publish-subscribe system, consumers are usually lagging producers a little bit. In this case, consumers read data from page cache directly without having to access disks. 
 
-Other message queues like ActiveMQ, RabbitMQ, RocketMQ, and ZeroMQ can be a potential replacement for Kafka. Unlike Kafka, a log based message queue, they implement multiple messaging protocols like STOMP, AMQP, MQTT, etc. Due to limited space, we only make a comparison between Kafka and RabbitMQ. 
+Other message queues like ActiveMQ, RabbitMQ, RocketMQ, and ZeroMQ can be a potential replacement for Kafka. Unlike Kafka, a log based message queue, they implement multiple messaging protocols like STOMP, AMQP, MQTT, etc. Due to limited space, we only make a short comparison between Kafka and RabbitMQ. 
 
 ![rabbitmq](fig/rabbitmq.jpg)
 
@@ -120,7 +120,7 @@ The main difference between the two is that Kafka offers higher throughput and i
 ## Machine Learning Services
 
 ## Real-Time Data Analysis
-Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is Apache Flink. In previous sections, we have introduced some background of Flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection, and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controlling window, time, and checkpointing. 
+Data processed by ML service is then ready for aggregation analysis. The framework that we used for this phase is Apache Flink. In previous sections, we have introduced some background of Flink, including its basic building blocks and architectures. Flink has been widely accepted in applications like fraud detection, anomaly detection, and business event monitoring. It can handle both batch data and streaming data with the same underlying runtime environment. And provides flexible API for controlling window, time, and checkpointing.
 
 Spark is a direct competitor of Flink in the stream processing area. Comparing to Spark streaming, Flink offers more fine-grained control for windowing incoming data. In Spark streaming, data are min-batched in processing time, and there is no option for batching in event-time. In the meantime, calculation of Spark streaming is triggered globally instead of operator by operator. While in Flink, we can batch data in event time by specifying window assigner, and trigger calculation for each operator by setting its own trigger. 
 
@@ -239,7 +239,6 @@ As is shown on the sample weighted list, Bitcoin is the most frequently mentione
 As can be seen in the figure, words like 'bitcoin', 'btc', 'crypto' have occupied a large proportion area. This information may not be much help because it's too common. While words like 'iota', 'good', 'want', 'never' and 'better' implies the opinion moods of people. The figure helps investors to realize that people are hyping the altcoin 'iota' at that time. Maybe it's the time to take a chance or arbitrage from it.
 
 ![word_cloud](fig/word_cloud.png)
-
 
 ### Opinion Variation
 We have done sentiment analysis for user comments in the machine learning subsystem. At this step, we would like to see the variation of user opinion in time series. Thus, we evaluate the proportion of different user opinions every 100 comments. The result is written to Redis as a sorted set with the current timestamp as the score. A stepped area chart is used for displaying 20 of the most recent records. Users can see the opinion variation within one hour. It helps them to distinguish market variation and respond to it immediately. <todo>Figurexxx shows an example result for comments from 2018-01-25 20:45:52 to 2018-01-26 19:25:27</todo> In the stepped area chart, the horizontal axis is time series and the vertical axis is the percentage of each opinion mood. Most of the area is in the blue background, which represents neutral. Only a small portion of the area is in orange and red which represents positive and negative correspondingly. When we observe a zigzag like that's at 2018-01-26 18:57:45 on the chart, it may indicate that the market has some positive/negative news that comes out. And investors can take responses to it.

@@ -49,8 +49,6 @@ kafka-topics.sh --describe --bootstrap-server localhost:9092
 ```
 
 
-
-
 # Fix Crypto Virus
 ```shell
 https://github.com/laradock/laradock/issues/2451

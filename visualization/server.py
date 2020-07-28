@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__, static_url_path='')
 
 ##################### Configuration #####################
-red = redis.Redis(host='129.204.135.185', port=6379, db=0)
+red = redis.Redis(host='localhost', port=6379, db=0)
 redis_wc = 'word_cloud'
 redis_nnp = 'nnp'
 redis_ps = 'ps'
